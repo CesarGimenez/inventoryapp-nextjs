@@ -2,9 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCompanyStore } from "@/store";
-import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { getMyPayments } from "./api";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { usePayment } from "./usePayment";

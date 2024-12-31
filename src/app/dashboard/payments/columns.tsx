@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { ColumnDef, FilterFn, Row, SortDirection } from "@tanstack/react-table";
+import { ColumnDef, SortDirection } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,8 +28,6 @@ import {
   setCompletePayment,
   setPendingPayment,
 } from "./api";
-import { usePayment } from "./usePayment";
-import { useCompanyStore } from "@/store";
 
 interface Payment {
   _id: string;

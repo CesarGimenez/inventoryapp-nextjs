@@ -63,8 +63,6 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const categories = useCompanyStore((state) => state.categories);
-
   const isDeleteVisible = Object.keys(rowSelection)?.length > 0;
 
   const table = useReactTable({
