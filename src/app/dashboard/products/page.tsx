@@ -15,8 +15,8 @@ export default function Page() {
   return (
     <div>
       {
-        !isLoading && (
-          <DataTable columns={columns} data={data} refetch={refetch} />
+        !isLoading && data && (
+          <DataTable columns={columns} data={data ?? []} refetch={refetch} />
         )
       }
     </div>

@@ -56,6 +56,10 @@ const commonLinks = [
   { name: "Productos", href: "products", icon: Package },
 ];
 
+const initialLink = [
+  { name: "Inicio", href: "home", icon: Home },
+]
+
 export default function DashboardLayout({
   children,
 }: {
@@ -75,7 +79,7 @@ export default function DashboardLayout({
   const typeUser = user?.type as string;
 
   useEffect(() => {
-    if (!loading && (!user || token === "")) {
+    if (!user || token === "") {
       router.push("/login");
     }
   }, [user, token, loading, router]);
@@ -85,8 +89,8 @@ export default function DashboardLayout({
       <>
            {user?.type === "PROPIETARIO" ? (
         <Select
-          defaultValue={defaultCompany._id}
-          value={defaultCompany._id}
+          defaultValue={defaultCompany?._id}
+          value={defaultCompany?._id}
           onValueChange={(value) => {
             const company = companies.find(
               (company) => company._id === value
@@ -97,7 +101,7 @@ export default function DashboardLayout({
           }}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={defaultCompany.name} />
+            <SelectValue placeholder={defaultCompany?.name ?? "Selecciona una empresa"} />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -209,7 +213,7 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
               <div className="flex-1 px-3 bg-white divide-y space-y-1 dark:bg-slate-900">
                 <ul className="space-y-2 pb-2">
-                  {(["PROPIETARIO"].includes(typeUser)
+                  {(!defaultCompany ? initialLink : ["PROPIETARIO"].includes(typeUser)
                     ? ownerLinks
                     : ["ADMINISTRADOR"].includes(typeUser)
                     ? adminLinks
