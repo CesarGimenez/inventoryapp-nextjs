@@ -163,7 +163,7 @@ export default function FormularioPedidoAlternativo() {
     },
   });
 
-  const disabledButton = !clienteSeleccionado || productosAgregados.length === 0 || !metodoSeleccionado || !estadoSeleccionado
+  const disabledButton = !clienteSeleccionado || productosAgregados?.length === 0 || !metodoSeleccionado || !estadoSeleccionado
 
   const completePayment = () => {
     const data = {
@@ -192,7 +192,7 @@ export default function FormularioPedidoAlternativo() {
               <SelectValue placeholder="Seleccione un cliente" />
             </SelectTrigger>
             <SelectContent>
-              {clients && clients.length > 0 ? (
+              {clients && clients?.length > 0 ? (
                 clients.map((cliente: Client) => (
                   <SelectItem key={cliente._id} value={cliente._id}>
                     {cliente.name}
@@ -212,7 +212,7 @@ export default function FormularioPedidoAlternativo() {
               <SelectValue placeholder="Seleccione un producto" />
             </SelectTrigger>
             <SelectContent>
-              {products && products.length > 0 ? (
+              {products && products?.length > 0 ? (
                 products.map((product: Product) => (
                   <SelectItem key={product._id} value={product._id}>
                     {product.name} - ${product.price} ({product.quantity} disponibles)
@@ -249,7 +249,7 @@ export default function FormularioPedidoAlternativo() {
       <div className="space-y-2">
         <h2 className="text-xl font-semibold">Productos Agregados</h2>
         <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-          {productosAgregados.length === 0 ? (
+          {productosAgregados?.length === 0 ? (
             <p className="text-center text-gray-500">No hay productos agregados</p>
           ) : (
             productosAgregados.map((item, index) => (

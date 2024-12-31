@@ -87,7 +87,7 @@ export const TruckModal = ({ refetch = () => {} }: Props) => {
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     data.company = defaultCompany?._id;
     data.is_active = !!data.is_active
-    data.owner = user._id
+    data.owner = user?._id
     mutate(data);
   };
 
