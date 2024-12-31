@@ -6,7 +6,7 @@ export const usePayment = (companyId: string) => {
     const { data, isLoading, refetch } = useQuery({
         queryKey: ["payments", companyId],
         queryFn: () => getMyPayments(companyId),
-        enabled: !!companyId,
+        // enabled: !!companyId,
     });
 
     return {
