@@ -42,22 +42,28 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Payment } from "@/data/payments.data";
+import { ProductModal } from "./modal";
+import { useCompanyStore } from "@/store";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  refetch?: () => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  refetch,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [currentStatus, setCurrentStatus] = useState("all");
+  const [currentCategory, setCurrentCategory] = useState("all");
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  const categories = useCompanyStore((state) => state.categories);
 
   const isDeleteVisible = Object.keys(rowSelection).length > 0;
 
@@ -84,12 +90,11 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter anything...(client name, email, status)"
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filtrar por ...(nombre, usuario, etc)"
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) => {
             setCurrentStatus("all");
-            table.getColumn("status")?.setFilterValue(undefined);
-            table.getColumn("email")?.setFilterValue(event.target.value);
+            table.getColumn("name")?.setFilterValue(event.target.value);
           }}
           className="max-w-sm"
         />
@@ -98,26 +103,25 @@ export function DataTable<TData, TValue>({
           value={currentStatus}
           onValueChange={(value) => {
             if (value === "all") {
-              table.getColumn("status")?.setFilterValue(undefined);
+              table.getColumn("active")?.setFilterValue(undefined);
               setCurrentStatus("all");
               return;
             }
-
+            
+            const status = value === "active" ? true : false;
             setCurrentStatus(value);
-            table.getColumn("status")?.setFilterValue(value);
+            table.getColumn("active")?.setFilterValue(status);
           }}
         >
           <SelectTrigger className="w-[180px] ml-2">
-            <SelectValue placeholder="Status - All" />
+            <SelectValue placeholder="Estatus - Todos" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Status</SelectLabel>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="success">Success</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
+              <SelectLabel>Estatus</SelectLabel>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="active">Activo</SelectItem>
+              <SelectItem value="inactive">Inactivo</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -132,7 +136,7 @@ export function DataTable<TData, TValue>({
               // });
 
               const ids = table.getSelectedRowModel().rows.map((row) => {
-                return (row.original as Payment).clientName;
+                return (row.original as any).clientName;
               });
             }}
           >
@@ -143,7 +147,7 @@ export function DataTable<TData, TValue>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns
+              Columnas
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -167,6 +171,11 @@ export function DataTable<TData, TValue>({
               })}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* <Button className="ml-2">
+          <Plus className="mr-2 h-4 w-4" /> Agregar
+        </Button> */}
+        <ProductModal refetch={refetch} />
       </div>
 
       <div className="rounded-md border">
@@ -212,7 +221,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No hay resultados.
                 </TableCell>
               </TableRow>
             )}
@@ -221,8 +230,8 @@ export function DataTable<TData, TValue>({
 
         <div className="space-x-2 py-4 mx-2 flex justify-between items-center">
           <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {table.getFilteredSelectedRowModel().rows.length} de{" "}
+            {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s)
           </div>
 
           <div className="flex items-center justify-end space-x-2 ">
@@ -232,7 +241,7 @@ export function DataTable<TData, TValue>({
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              Previous
+              Anterior
             </Button>
             <Button
               variant="outline"
@@ -240,7 +249,7 @@ export function DataTable<TData, TValue>({
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              Next
+              Siguiente
             </Button>
           </div>
         </div>
@@ -251,11 +260,11 @@ export function DataTable<TData, TValue>({
           }}
         >
           <SelectTrigger className="w-[180px] m-2">
-            <SelectValue placeholder="10 Rows" />
+            <SelectValue placeholder="10 filas" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Rows per page</SelectLabel>
+              <SelectLabel>Filas por página</SelectLabel>
               <SelectItem value="10">10</SelectItem>
               <SelectItem value="20">20</SelectItem>
               <SelectItem value="30">30</SelectItem>
