@@ -59,11 +59,10 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [currentStatus, setCurrentStatus] = useState("all");
-  const [currentCategory, setCurrentCategory] = useState("all");
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const isDeleteVisible = Object.keys(rowSelection)?.length > 0;
+  // const isDeleteVisible = Object.keys(rowSelection)?.length > 0;
 
   const table = useReactTable({
     data,
@@ -124,7 +123,7 @@ export function DataTable<TData, TValue>({
           </SelectContent>
         </Select>
 
-        {isDeleteVisible && (
+        {/* {isDeleteVisible && (
           <Button
             className="ml-2"
             variant="destructive"
@@ -140,7 +139,7 @@ export function DataTable<TData, TValue>({
           >
             Delete
           </Button>
-        )}
+        )} */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -197,7 +196,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table?.getRowModel()?.rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -228,8 +227,8 @@ export function DataTable<TData, TValue>({
 
         <div className="space-x-2 py-4 mx-2 flex justify-between items-center">
           <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows?.length} de{" "}
-            {table.getFilteredRowModel().rows?.length} fila(s) seleccionada(s)
+            {table?.getFilteredSelectedRowModel()?.rows?.length} de{" "}
+            {table?.getFilteredRowModel()?.rows?.length} fila(s) seleccionada(s)
           </div>
 
           <div className="flex items-center justify-end space-x-2 ">
