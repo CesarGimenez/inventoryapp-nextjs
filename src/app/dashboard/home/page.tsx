@@ -94,7 +94,7 @@ const Dashboard = () => {
           </div>
 
           {
-            data?.paymentsPerMonth?.chartData && (
+            data?.paymentsPerMonth?.chartData?.length > 0 && (
               <div className="mt-8 w-1/2">
                 <h1 className="text-xl mb-4">Ventas Mensuales</h1>
                 <PieChartComponent data={data?.paymentsPerMonth}/>

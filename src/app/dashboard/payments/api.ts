@@ -32,7 +32,7 @@ export const downloadInvoice = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "invoice.pdf";
+        a.download = `invoice-${Date.now()}.pdf`;
         a.click();
       });
   }
@@ -42,6 +42,8 @@ export const printInvoice = () => {
       .then((res) => res.blob())
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
-        window.open(url, "_blank");
+        const newWindow = window.open(url, "_blank");
+        newWindow?.focus();
+        newWindow?.print();
       });
   }
