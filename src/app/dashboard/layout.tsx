@@ -219,9 +219,12 @@ export default function DashboardLayout({
                     ? adminLinks
                     : commonLinks).map((link) => (
                     <li key={link.href}>
-                      <Link
-                        href={link.href}
-                        className={`text-base capitalize text-gray-900 font-normal rounded-lg flex flex-row items-center p-2 hover:bg-secondary hover:text-primary group dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-300 ${
+                      <span
+                        // href={link.href}
+                        onClick={() => router.push('/dashboard/' + link.href)}
+                        className={`text-base capitalize text-gray-900 font-normal rounded-lg flex 
+                          flex-row items-center p-2 hover:bg-secondary hover:text-primary group dark:bg-slate-900 
+                          dark:hover:bg-slate-800 dark:text-slate-300 cursor-pointer ${
                           pathname.includes(link.href)
                             ? "bg-secondary text-primary"
                             : ""
@@ -229,7 +232,7 @@ export default function DashboardLayout({
                       >
                         <link.icon />
                         <span className="ml-3"> {link.name}</span>
-                      </Link>
+                      </span>
                     </li>
                   ))}
                 </ul>

@@ -25,6 +25,12 @@ export const setCompletePayment = (id: string, data = { status: 'Pagado'}) => Qu
     id,
 })
 
+export const getPaymentDetails = (id: string) => QueryApi({
+    type: "GET",
+    url: "v1/payments",
+    id,
+})
+
 export const downloadInvoice = () => {
     fetch(`${BASE_API}/v1/basic-reports`)
       .then((res) => res.blob())

@@ -15,10 +15,12 @@ type AuthStore = {
     user: User | null;
     token: string;
     loading: boolean;
+    lastPageVisited: string;
     login: (data: any) => void;
     logout: () => void;
     setUser: (user: any) => void;
     initializeAuth: () => void;
+    setLastPageVisited: (page: string) => void;
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -27,6 +29,7 @@ export const useAuthStore = create<AuthStore>()(
             user: null,
             token: "",
             loading: true,
+            lastPageVisited: "",
             login: (data: any) => set({ user: data.user, token: data.token }),
             logout: () => set({ user: null, token: "" }),
             setUser: (user: User) => set({ user }),
@@ -43,6 +46,7 @@ export const useAuthStore = create<AuthStore>()(
                   set({ loading: false });
                 }
               },
+            setLastPageVisited: (page: string) => set({ lastPageVisited: page }),
         }),
         {
             name: "auth",

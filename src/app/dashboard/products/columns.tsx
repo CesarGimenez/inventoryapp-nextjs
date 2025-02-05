@@ -1,8 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Payment } from "@/data/payments.data";
 import { ColumnDef, FilterFn, Row, SortDirection } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,8 +25,8 @@ import { toast } from "sonner";
 
 // import { toast } from "@/components/ui/use-toast";
 
-const myCustomFilterFn: FilterFn<Payment> = (
-  row: Row<Payment>,
+const myCustomFilterFn: FilterFn<any> = (
+  row: Row<any>,
   columnId: string,
   filterValue: string,
   addMeta: (meta: any) => void
@@ -52,7 +52,7 @@ const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {
   return null;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -184,38 +184,45 @@ export const columns: ColumnDef<Payment>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const product = row.original;
+      
+      const ActionsMenu = () => { // This is now a functional component
+        const router = useRouter();
+        const handleEdit = () => {
+          router.push(`/dashboard/products/edit-product?id=${product.id}`);
+        };
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                navigator.clipboard.writeText(payment.id);
-                toast("Payment ID copied to clipboard", {
-                  position: "top-right",
-                  duration: 3000,
-                });
-                // toast({
-                //   description: "Payment ID copied to clipboard",
-                // });
-              }}
-            >
-              Copiar ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {/* <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(product.id);
+                  toast("Product ID copied to clipboard", {
+                    position: "top-right",
+                    duration: 3000,
+                  });
+                }}
+              >
+                Copiar ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+                Editar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      };
+
+      return <ActionsMenu />;
     },
   },
 ];

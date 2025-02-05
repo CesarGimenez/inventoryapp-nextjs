@@ -28,6 +28,9 @@ import {
   setCompletePayment,
   setPendingPayment,
 } from "./api";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { usePayment } from "./usePayment";
 
 interface Payment {
   _id: string;
@@ -191,79 +194,99 @@ export const columns: ColumnDef<Payment>[] = [
     cell: ({ row }) => {
       const payment = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                navigator.clipboard.writeText(payment._id);
-                toast("Payment ID copied to clipboard", {
-                  position: "top-right",
-                  duration: 3000,
-                });
-              }}
-            >
-              Copiar ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Eye className="mr-2 h-4 w-4" />
-              Ver detalle
-            </DropdownMenuItem>
-            {(payment.status as string) === "Pagado" && (
-              <>
-                <DropdownMenuItem onClick={downloadInvoice}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Descargar factura
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={printInvoice}>
-                  <Printer className="mr-2 h-4 w-4" />
-                  Imprimir factura
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setPendingPayment(payment?._id);
-                  }}
-                >
-                  <Clock className="mr-2 h-4 w-4" />
-                  Marcar como pendiente
-                </DropdownMenuItem>
-              </>
-            )}
-            {(payment.status as string) === "Pendiente" && (
-              <>
-                <DropdownMenuItem>
-                  <Download className="mr-2 h-4 w-4" />
-                  Descargar factura
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Printer className="mr-2 h-4 w-4" />
-                  Imprimir factura
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setCompletePayment(payment?._id)
-                  }}
-                >
-                  <Check className="mr-2 h-4 w-4" />
-                  Marcar como pagado
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">
-                  <X className="mr-2 h-4 w-4" />
-                  Cancelar
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      const ActionsMenu = () => {
+        const router = useRouter();
+        const { setComplete, setPending } = usePayment();
+        const redirectPaymentDetails = () => {
+          router.push(`/dashboard/payments/payment-detail?id=${payment._id}`);
+        };
+        const setCompletePayment = () => setComplete(payment._id);
+        const setPendingPayment = () => setPending(payment._id);
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(payment._id);
+                  toast("Payment ID copied to clipboard", {
+                    position: "top-right",
+                    duration: 3000,
+                  });
+                }}
+              >
+                Copiar ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={redirectPaymentDetails}
+                className="cursor-pointer"
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Ver detalle
+              </DropdownMenuItem>
+              {(payment.status as string) === "Pagado" && (
+                <>
+                  <DropdownMenuItem
+                    onClick={downloadInvoice}
+                    className="cursor-pointer"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Descargar factura
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={printInvoice} className="cursor-pointer">
+                    <Printer className="mr-2 h-4 w-4" />
+                    Imprimir factura
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setPendingPayment();
+                    }}
+                  >
+                    <Clock className="mr-2 h-4 w-4" />
+                    Marcar como pendiente
+                  </DropdownMenuItem>
+                </>
+              )}
+              {(payment.status as string) === "Pendiente" && (
+                <>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Download className="mr-2 h-4 w-4" />
+                    Descargar factura
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Printer className="mr-2 h-4 w-4" />
+                    Imprimir factura
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setCompletePayment();
+                    }}
+                  >
+                    <Check className="mr-2 h-4 w-4" />
+                    Marcar como pagado
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive cursor-pointer">
+                    <X className="mr-2 h-4 w-4" />
+                    Cancelar
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      };
+
+      return <ActionsMenu />;
     },
   },
 ];

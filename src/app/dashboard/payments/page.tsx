@@ -12,12 +12,11 @@ export default function Page() {
     const redirect = () => {
         router.push("/dashboard/new-payment");
     }
-    const companyId = useCompanyStore((state) => state.defaultCompany?._id)
-    const { data, isLoading, refetch} = usePayment(companyId)
+    const { data, isLoading, refetch} = usePayment()
 
   return (
     <div>
-      <Button onClick={redirect}>Nuevo Pago</Button>
+      <Button onClick={redirect}>Nueva venta</Button>
       {
         !isLoading && (
           <DataTable columns={columns} data={data} refetch={refetch} />
