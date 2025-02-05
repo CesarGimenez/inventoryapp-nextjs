@@ -13,6 +13,7 @@ import NotDataDashboard from '../../../assets/icons/not-data-dashboard.svg';
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { getAnalyticsDashboard } from "./api";
+import { BestClientsList } from "@/components/Charts/BestClientsList";
 
 const latestWithdrawals = [
   {
@@ -66,7 +67,7 @@ const Dashboard = () => {
                 <h1 className="text-lg font-bold text-primary">Total Ventas</h1>
               </CardHeader>
               <CardContent>
-                <h1 className="text-2xl">{isFetching ? '$0' : !data?.totalSelled ? '$0' : data.totalSelled}</h1>
+                <h1 className="text-2xl">${isFetching ? '0' : !data?.totalSelled ? '0' : data.totalSelled}</h1>
               </CardContent>
             </Card>
 
@@ -93,14 +94,26 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {
-            data?.paymentsPerMonth?.chartData?.length > 0 && (
-              <div className="mt-8 w-1/2">
-                <h1 className="text-xl mb-4">Ventas Mensuales</h1>
-                <PieChartComponent data={data?.paymentsPerMonth}/>
-              </div>
-            )
-          }
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {
+              data?.paymentsPerMonth?.chartData?.length > 0 && (
+                <div className="mt-8">
+                  <h1 className="text-xl mb-4">Ventas Mensuales</h1>
+                  <PieChartComponent data={data?.paymentsPerMonth}/>
+                </div>
+              )
+            }
+
+            {
+              data?.bestClients?.length > 0 && (
+                <div className="mt-8">
+                  <h1 className="text-xl mb-4">Mejores Clientes</h1>
+                  <BestClientsList data={data?.bestClients}/>
+                </div>
+              )
+            }
+          </div>
+
          
 
           <div className="mt-8">

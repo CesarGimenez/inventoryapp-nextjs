@@ -52,11 +52,11 @@ interface DataTableProps<TData, TValue> {
 }
 
 const PaymentMethods = [
-  "Tarjeta de Crédito",
-  "Tarjeta de Débito",
+  "Crédito",
+  "Débito",
   "Efectivo",
   "Transferencia",
-  "Otro",
+  "Pago Movil",
 ];
 
 export function DataTable<TData, TValue>({
@@ -145,6 +145,11 @@ export function DataTable<TData, TValue>({
               return;
             }
 
+            if(value === "Crédito"){
+              setCurrentMethod("Crédito");
+              table.getColumn("payment_method")?.setFilterValue("Credito");
+              return;
+            }
             setCurrentMethod(value);
             table.getColumn("payment_method")?.setFilterValue(value);
           }}

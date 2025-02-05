@@ -11,7 +11,12 @@ export default function Home() {
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
-  
-  redirect("/dashboard/home");
+    if (authState.user && authState.token) {
+      router.push("/dashboard/home");
+    } else {
+      router.push("/login");
+    }
+  }, [checkAuth, authState.user, authState.token, router]);
+
+  return null;
 }

@@ -36,7 +36,7 @@ const ownerLinks = [
   { name: "Categorias", href: "categories", icon: Package2 },
   { name: "Clientes", href: "clients", icon: BookUser },
   { name: "Trabajadores", href: "workers", icon: Users2 },
-  { name: "Pagos", href: "payments", icon: DollarSign },
+  { name: "Ventas", href: "payments", icon: DollarSign },
   // { name: "Proveedores", href: "suppliers", icon: Store },
   // { name: "Reportes", href: "reports", icon: Store },
   // { name: "Configuraciones", href: "settings", icon: Store },
@@ -48,7 +48,7 @@ const adminLinks = [
   { name: "Categorias", href: "categories", icon: Package2 },
   { name: "Clientes", href: "clients", icon: BookUser },
   { name: "Trabajadores", href: "workers", icon: Users2 },
-  { name: "Pagos", href: "payments", icon: DollarSign },
+  { name: "Ventas", href: "payments", icon: DollarSign },
 ];
 
 const commonLinks = [

@@ -73,6 +73,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
         description: "El producto se ha creado correctamente",
       });
       refetch();
+      form.reset();
       setOpen(false);
     },
     onError: () => {
@@ -144,9 +145,9 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
                   <Input
                     placeholder="Precio del producto"
                     type="number"
-                    min={0}
                     step={0.01}
-                    onChange={(e) => onChange(Number(e.target.value))}
+                    min={0}
+                    onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
                     {...field}
                   />
                   <FormMessage />

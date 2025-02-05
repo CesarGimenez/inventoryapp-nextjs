@@ -75,6 +75,9 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
         description: "El cliente se ha creado correctamente",
       });
       refetch();
+      form.setValue('name', '')
+      form.setValue('phone', '')
+      form.setValue('address', '')
       setOpen(false);
     },
     onError: () => {

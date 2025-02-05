@@ -37,19 +37,19 @@ import { useToast } from "../ui/use-toast";
 import { useState } from "react";
 
 const companyTypes = [
-  { label: "Restaurant", value: "RESTAURANT" },
-  { label: "Hotel", value: "HOTEL" },
-  { label: "Restaurant hotel", value: "RESTAURANT_HOTEL" },
-  { label: "Cafeteria", value: "CAFETERIA" },
+  // { label: "Restaurant", value: "RESTAURANT" },
+  // { label: "Hotel", value: "HOTEL" },
+  // { label: "Restaurant hotel", value: "RESTAURANT_HOTEL" },
+  // { label: "Cafeteria", value: "CAFETERIA" },
   { label: "Supermercado", value: "SUPERMERCADO" },
   { label: "Ferreteria", value: "FERRETERIA" },
-  { label: "Charcuteria", value: "CHARCUTERIA" },
-  { label: "Comida rapida", value: "FASTFOOD" },
+  // { label: "Charcuteria", value: "CHARCUTERIA" },
+  // { label: "Comida rapida", value: "FASTFOOD" },
   { label: "Tienda", value: "TIENDA" },
   { label: "Licoreria", value: "LICORERIA" },
-  { label: "Panaderia", value: "PANADERIA" },
-  { label: "Pasteleria", value: "PASTELERIA" },
-  { label: "Carniceria", value: "CARNICERIA" },
+  // { label: "Panaderia", value: "PANADERIA" },
+  // { label: "Pasteleria", value: "PASTELERIA" },
+  // { label: "Carniceria", value: "CARNICERIA" },
   { label: "Almacen", value: "ALMACEN" },
   { label: "Otros", value: "OTRO" },
 ] as const;

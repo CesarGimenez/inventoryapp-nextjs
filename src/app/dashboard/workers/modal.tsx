@@ -59,6 +59,7 @@ enum userTypeEnum {
   EMPLEADO = "EMPLEADO",
   VENDEDOR = "VENDEDOR",
   CONDUCTOR = "CONDUCTOR",
+  ADMINISTRADOR = "ADMINISTRADOR",
 }
 
 const UserTypes = Object.values(userTypeEnum);
@@ -174,7 +175,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
                 <FormItem>
                   <FormLabel>Clave</FormLabel>
                   <Input
-                    placeholder="Correo"
+                    placeholder="Clave de usuario"
                     type="password"
                     {...field}
                   />

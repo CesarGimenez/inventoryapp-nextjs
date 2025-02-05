@@ -45,6 +45,7 @@ const paymentMethods = [
   { id: "Efectivo", name: "Efectivo" },
   { id: "Tarjeta", name: "Tarjeta" },
   { id: "Transferencia", name: "Transferencia" },
+  { id: "Credito", name: "Credito" },
 ]
 
 const paymentStatuses = [
@@ -62,7 +63,7 @@ export default function FormularioPedidoAlternativo() {
   const [productoSeleccionado, setProductoSeleccionado] = useState<string>("")
   const [metodoSeleccionado, setMetodoSeleccionado] = useState<string>("")
   const [estadoSeleccionado, setEstadoSeleccionado] = useState<string>("")
-  const [cantidad, setCantidad] = useState(1)
+  const [cantidad, setCantidad] = useState<number | string>()
   const [productosAgregados, setProductosAgregados] = useState<Array<PaymentDetail>>([])
 
   const { data: clients } = useQuery({
@@ -84,7 +85,7 @@ export default function FormularioPedidoAlternativo() {
   const agregarProducto = () => {
     const productoElegido = products.find((p: Product) => p._id === productoSeleccionado)
 
-     if(productoElegido.quantity < cantidad) {
+     if(productoElegido.quantity < Number(cantidad)) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -96,7 +97,7 @@ export default function FormularioPedidoAlternativo() {
       const productoExistente = productosAgregados.find((p) => p.name === productoElegido?.name)
       if (productoExistente) {
 
-        const acumulado = productoExistente.quantity + cantidad
+        const acumulado = productoExistente.quantity + Number(cantidad)
 
         if(acumulado > productoElegido.quantity) {
           toast({
@@ -112,8 +113,8 @@ export default function FormularioPedidoAlternativo() {
             if (p.name === productoExistente.name) {
               return {
                 name: productoExistente.name,
-                quantity: p.quantity + cantidad,
-                price: p.price + (productoElegido.price * cantidad),
+                quantity: p.quantity + Number(cantidad),
+                price: p.price + (productoElegido.price * Number(cantidad)),
                 product: p.product
               }
             } else {
@@ -128,8 +129,8 @@ export default function FormularioPedidoAlternativo() {
       
       setProductosAgregados([...productosAgregados, {
         name: productoElegido.name,
-        quantity: cantidad,
-        price: productoElegido.price * cantidad,
+        quantity: Number(cantidad),
+        price: productoElegido.price * Number(cantidad),
         product: productoElegido._id
       }])
       setProductoSeleccionado("")
@@ -180,7 +181,7 @@ export default function FormularioPedidoAlternativo() {
 
   return (
     <div className="mx-auto p-6 space-y-6">
-      <Button variant="outline" onClick={() => router.push("/dashboard/payments")}>Ir pagos</Button>
+      <Button variant="outline" onClick={() => router.push("/dashboard/payments")}>Ir ventas</Button>
       <h1 className="text-2xl font-bold">Formulario de Pedido</h1>
 
       <div className="space-y-4">
@@ -236,7 +237,7 @@ export default function FormularioPedidoAlternativo() {
               id="cantidad"
               type="number"
               value={cantidad}
-              onChange={(e) => setCantidad(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => setCantidad(e.target.value === '' ? '' : Number(e.target.value))}
               min={1}
             />
           </div>
