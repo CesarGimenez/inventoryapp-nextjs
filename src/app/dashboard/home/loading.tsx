@@ -2,7 +2,7 @@ import { Card, CardHeader, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
-  const data = "123456789".split("");
+  const data = "123".split("");
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">

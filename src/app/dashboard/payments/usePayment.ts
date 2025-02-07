@@ -12,13 +12,15 @@ export const usePayment = (id?: string) => {
         queryKey: ["payments", idCompany],
         queryFn: () => getMyPayments(idCompany),
         refetchOnWindowFocus: false,
-        // enabled: !!companyId,
+        enabled: !!idCompany,
+        staleTime: 1000 * 60 * 60
     });
 
     const { data: dataDetail, isLoading: isLoadingDetailm, refetch: refetchDetail } = useQuery({
         queryKey: ["paymentDetail", id],
         queryFn: () => getPaymentDetails(id as string),
         enabled: !!id,
+        staleTime: 1000 * 60 * 60
     });
 
     const { mutate: setPending } = useMutation({

@@ -15,7 +15,7 @@ interface Props {
 export function BestClientsList({ data }: Props) {
 
   return (
-    <Card className="h-full">
+    <Card className="">
       <CardContent>
         {
             data.map((item: any) => (

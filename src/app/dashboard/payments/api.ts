@@ -3,7 +3,45 @@
 const BASE_API = process.env.NEXT_PUBLIC_API_URL;
 
 import QueryApi from "@/api/useQueryApi";
-import { usePayment } from "./usePayment";
+
+interface Payment {
+  _id: string;
+  status: string;
+  total: number;
+  payment_method: string;
+  createdAt: string;
+  updatedAt: string;
+  payment_date?: string;
+  client: Client;
+  seller: Seller;
+  payment_details: PaymentDetail[]
+}
+
+interface Client {
+  name: string;
+  phone: string;
+  avatar?: string;
+  address: string;
+}
+
+interface Seller {
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+interface Product {
+  name: string;
+  quantity: number;
+  price: number;
+  is_active?: boolean;
+}
+
+interface PaymentDetail {
+  product: Product;
+  quantity: number;
+  price: number;
+}
 
 export const getMyPayments = (id: string) => QueryApi({
     type: "GET",
@@ -25,7 +63,7 @@ export const setCompletePayment = (id: string, data = { status: 'Pagado'}) => Qu
     id,
 })
 
-export const getPaymentDetails = (id: string) => QueryApi({
+export const getPaymentDetails = (id: string): Promise<Payment> => QueryApi({
     type: "GET",
     url: "v1/payments",
     id,

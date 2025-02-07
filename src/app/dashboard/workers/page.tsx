@@ -4,11 +4,12 @@ import { columns } from "./columns";
 import { useQuery } from "@tanstack/react-query";
 import { useCompanyStore } from "@/store";
 import { getMyUsers } from "./api";
+import LoadingTable from "@/components/Loading/LoadingTable";
 
 export default function Page() {
   const companyId = useCompanyStore((state) => state.defaultCompany?._id);
   const setWorkers = useCompanyStore((state) => state.setWorkers);
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["workers", companyId],
     queryFn: async () => {
       const users = await getMyUsers(companyId);
@@ -20,8 +21,18 @@ export default function Page() {
       }));
       return users;
     },
-    // enabled: !!companyId,
+    staleTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
+    enabled: !!companyId,
   });
+
+  if(isFetching || isLoading || !data) {
+    return (
+        <div>
+          <LoadingTable />
+        </div>
+    )
+  }
 
   return (
     <div>

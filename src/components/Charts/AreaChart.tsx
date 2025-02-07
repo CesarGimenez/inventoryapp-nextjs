@@ -1,8 +1,7 @@
 "use client"
 
 import { TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { payments } from '../../data/payments.data';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -36,17 +35,6 @@ interface ChartData {
   total: string
 }
 
-export const description = "A simple area chart"
-
-// const chartData = [
-//   { month: "January", desktop: 186 },
-//   { month: "February", desktop: 305 },
-//   { month: "March", desktop: 237 },
-//   { month: "April", desktop: 73 },
-//   { month: "May", desktop: 209 },
-//   { month: "June", desktop: 214 },
-// ]
-
 const chartConfig = {
   desktop: {
     label: "Desktop",
@@ -54,7 +42,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function PieChartComponent({ data }: ChartProps) {
+export function AreaChartComponent({ data }: ChartProps) {
   const { description, chartData, percentage, period, title } = data ?? {}
 
   return (
@@ -70,10 +58,6 @@ export function PieChartComponent({ data }: ChartProps) {
           <AreaChart
             accessibilityLayer
             data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -83,6 +67,7 @@ export function PieChartComponent({ data }: ChartProps) {
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
             />
+            <YAxis />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { usePayment } from "./usePayment";
+import LoadingTable from "@/components/Loading/LoadingTable";
 
 export default function Page() {
     const router = useRouter();
@@ -13,6 +14,14 @@ export default function Page() {
         router.push("/dashboard/new-payment");
     }
     const { data, isLoading, refetch} = usePayment()
+
+    if(isLoading || !data) {
+      return (
+          <div>
+            <LoadingTable />
+          </div>
+      )
+    }
 
   return (
     <div>
