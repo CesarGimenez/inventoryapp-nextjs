@@ -1,20 +1,11 @@
 "use client";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { useCompanyStore } from "@/store";
-import { useQuery } from "@tanstack/react-query";
-import { getMyTrucks } from "@/api/trucks/trucks.api";
 import LoadingTable from "@/components/Loading/LoadingTable";
+import { useTrucks } from "@/hooks";
 
 export default function Page() {
-  const companyId = useCompanyStore((state) => state.defaultCompany?._id);
-  const { data, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ["trucks", companyId],
-    queryFn: () => getMyTrucks(companyId),
-    staleTime: 1000 * 60 * 60,
-    enabled: !!companyId,
-    refetchOnWindowFocus: false
-  });
+  const { data, isLoading, refetch, isFetching } = useTrucks();
 
   if(isFetching || isLoading || !data) {
     return (

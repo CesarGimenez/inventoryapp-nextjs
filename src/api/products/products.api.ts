@@ -13,3 +13,16 @@ export const createProduct = (data: any) => QueryApi({
     url: "v1/products",
     data,
 });
+
+export const getProductDetails = (id: string) => QueryApi({
+    type: "GET",
+    url: "v1/products",
+    id,
+})
+
+export const updateProduct = (id: string, data: any) => QueryApi({
+    type: "PATCH",
+    url: "v1/products",
+    data,
+    id,
+})

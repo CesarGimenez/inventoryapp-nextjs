@@ -1,36 +1,64 @@
 "use client";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { useCompanyStore } from "@/store";
-import { useQuery } from "@tanstack/react-query";
-import { getMyProducts } from "@/api/products/products.api";
 import LoadingTable from "@/components/Loading/LoadingTable";
+import { useCategories, useProducts } from "@/hooks";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export default function Page() {
-  const companyId = useCompanyStore((state) => state.defaultCompany?._id);
-  const { data, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ["products", companyId],
-    queryFn: () => getMyProducts(companyId),
-    staleTime: 1000 * 60 * 60,
-    enabled: !!companyId,
-    refetchOnWindowFocus: false
+  const { data, isLoading, refetch, isFetching } = useProducts();
+  const { data: categories, isLoading: isLoadingCategories } = useCategories();
+
+  const [selectCategory, setSelectCategory] = useState(null);
+
+  const filteredProductsByCategory = data?.filter((product: any) => {
+    if (selectCategory === "TODOS") return true;
+    return product.category === selectCategory;
   });
 
-  if(isFetching || isLoading || !data) {
+  const handleSelectCategory = (category: any) => {
+    setSelectCategory(category);
+    return;
+  };
+
+  if (isFetching || isLoading || !data) {
     return (
       <div className="p-6">
         <LoadingTable />
       </div>
-    )
+    );
   }
 
   return (
     <div>
-      {
-        !isLoading && data && (
-          <DataTable columns={columns} data={data ?? []} refetch={refetch} />
-        )
-      }
+      {!isLoadingCategories && (
+        <div className="mb-4 flex items-center gap-2">
+          <Button
+            variant={selectCategory === "TODOS" ? "default" : "outline"}
+            onClick={() => handleSelectCategory("TODOS")}
+          >
+            TODOS
+          </Button>
+          {categories?.map((category: any) => (
+            <Button
+              key={category._id}
+              className="flex items-center gap-2"
+              variant={selectCategory === category.name ? "default" : "outline"}
+              onClick={() => handleSelectCategory(category.name)}
+            >
+              <span>{category.name}</span>
+            </Button>
+          ))}
+        </div>
+      )}
+      {!isLoading && data && (
+        <DataTable
+          columns={columns}
+          data={selectCategory ? filteredProductsByCategory : data ?? []}
+          refetch={refetch}
+        />
+      )}
     </div>
   );
 }

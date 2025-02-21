@@ -1,28 +1,19 @@
 "use client";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { useAuthStore, useCompanyStore } from "@/store";
-import { useQuery } from "@tanstack/react-query";
-import { getMyClients } from "./api";
+import { useAuthStore } from "@/store";
 import { useEffect } from "react";
 import LoadingTable from "@/components/Loading/LoadingTable";
+import { useClients } from "@/hooks";
 
 export default function Page() {
-  const companyId = useCompanyStore((state) => state.defaultCompany?._id);
-
   const setLastPageVisited = useAuthStore((state) => state.setLastPageVisited);
+
+  const { data, isLoading, refetch, isFetching } =  useClients();
     
     useEffect(() => {
       setLastPageVisited("/dashboard/products");
     }, [setLastPageVisited]);
-
-  const { data, isLoading, refetch, isFetching } = useQuery({
-    queryKey: ["clients", companyId],
-    queryFn: () => getMyClients(companyId),
-    staleTime: 1000 * 60 * 60,
-    enabled: !!companyId,
-    refetchOnWindowFocus: false
-  });
 
   if(isFetching || isLoading || !data) {
     return (

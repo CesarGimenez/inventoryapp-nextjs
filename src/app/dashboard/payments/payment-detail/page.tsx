@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { usePayment } from "../usePayment";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,28 +8,36 @@ import { Badge } from "lucide-react";
 import { differenceInDays, format } from "date-fns";
 import { Separator } from "@radix-ui/react-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Button } from "@/components/ui/button";
 
 const Page = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ComponentUsingSearchParams />
+      <PaymentDetail />
     </Suspense>
   );
 };
 
-const ComponentUsingSearchParams = () => {
+const PaymentDetail = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const { dataDetail: paymentDetail } = usePayment(id as string);
 
+  const router = useRouter();
+
+  console.log(paymentDetail?.payment_details)
   return (
     <div>
+      <Button onClick={() => router.push("/dashboard/payments")}>Regresar</Button>
       {paymentDetail && (
         <Card className="w-full max-w-2xl mx-auto p-4 shadow-lg rounded-2xl bg-white">
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-primary">
-              Detalle de Pago
-            </CardTitle>
+            <div className="flex justify-between">
+              <CardTitle className="text-xl font-bold text-primary">
+                Detalle de Pago
+              </CardTitle>
+              <Button>Imprimir factura</Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
@@ -170,6 +178,9 @@ const ComponentUsingSearchParams = () => {
                       <th className="border border-gray-300 px-4 py-2 text-left">
                         Precio
                       </th>
+                      <th className="border border-gray-300 px-4 py-2 text-left">
+                        Subtotal
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -184,7 +195,10 @@ const ComponentUsingSearchParams = () => {
                               {detail?.quantity}
                             </td>
                             <td className="border border-gray-300 px-4 py-2">
-                              ${Number(detail?.price).toFixed(2)}
+                              ${Number(detail?.product?.price).toFixed(2)}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              ${Number(detail?.price).toFixed(2)} {detail?.discount > 0 && `(-${detail?.discount}%)`}
                             </td>
                           </tr>
                         )

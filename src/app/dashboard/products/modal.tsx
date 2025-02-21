@@ -40,6 +40,7 @@ const FormSchema = z.object({
   company: z.string().optional(),
   description: z.string().optional(),
   price: z.number().default(0),
+  // unit_price: z.number().default(0),
   quantity: z.number().default(0),
   category: z.string({
     required_error: "Por favor, selecciona una categoria.",
@@ -76,11 +77,11 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
       form.reset();
       setOpen(false);
     },
-    onError: () => {
+    onError: (data) => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Ha ocurrido un error al crear el producto",
+        description: `Ha ocurrido un error al crear el producto, ${data.message}`,
       });
     },
   });
@@ -141,7 +142,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
               name="price"
               render={({ field: { onChange, ...field } }) => (
                 <FormItem>
-                  <FormLabel>Precio</FormLabel>
+                  <FormLabel>Precio ($)</FormLabel>
                   <Input
                     placeholder="Precio del producto"
                     type="number"
@@ -154,6 +155,25 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
                 </FormItem>
               )}
             />
+
+            {/* <FormField
+              control={form.control}
+              name="unit_price"
+              render={({ field: { onChange, ...field } }) => (
+                <FormItem>
+                  <FormLabel>Precio unitario ($)</FormLabel>
+                  <Input
+                    placeholder="Precio unitario"
+                    type="number"
+                    step={0.01}
+                    min={0}
+                    onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                    {...field}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
 
             <FormField
               control={form.control}

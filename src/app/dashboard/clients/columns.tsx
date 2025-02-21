@@ -168,6 +168,30 @@ export const columns: ColumnDef<Client>[] = [
   },
 
   {
+    accessorKey: "days_credit",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Dias de credito 
+          <SortedIcon isSorted={column.getIsSorted()} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const credit = row.getValue("days_credit") as string;
+
+      return (
+        <span>
+          { credit } Dias
+        </span>
+      );
+    },
+  },
+
+  {
     id: "actions",
     cell: ({ row }) => {
       const user = row.original;

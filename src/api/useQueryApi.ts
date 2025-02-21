@@ -31,7 +31,8 @@ const QueryApi = async ({ type = "GET", url = "", data = null, id = null }: Prop
     const response = await fetch(URL, PARAMS);
 
     if(!response.ok) {
-        throw new Error(response.statusText);
+      const failedResult = await response.json();
+      throw new Error(failedResult.message);
     }
 
     const result = await response.json();

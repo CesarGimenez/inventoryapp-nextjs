@@ -25,16 +25,14 @@ import { Check, Clock, Download, Eye, Printer, X } from "lucide-react";
 import {
   downloadInvoice,
   printInvoice,
-  setCompletePayment,
-  setPendingPayment,
 } from "./api";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
 import { usePayment } from "./usePayment";
 
 interface Payment {
   _id: string;
   status: string;
+  days_overdue?: number;
 }
 // const myCustomFilterFn: FilterFn<Payment> = (
 //   row: Row<Payment>,
@@ -115,7 +113,11 @@ export const columns: ColumnDef<Payment>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
+      const overdue = Number(row.original.days_overdue);
+      const isOverdue = overdue > 0 && status === "Pendiente";
+
       const variant =
+        isOverdue ? "destructive" :
         status === "Pagado"
           ? "success"
           : status === "Pendiente"
@@ -123,7 +125,7 @@ export const columns: ColumnDef<Payment>[] = [
           : "destructive";
       return (
         <Badge variant={variant} capitalize>
-          {status}
+          {isOverdue ? (<><Clock className="mr-2 h-4 w-4" /><span>Retraso ({overdue} dias)</span></>) : status}
         </Badge>
       );
     },
@@ -143,9 +145,9 @@ export const columns: ColumnDef<Payment>[] = [
       );
     },
     cell: ({ row }) => {
-      const total = row.getValue("total") as string;
+      const total = row.getValue("total") as number;
 
-      return <span className="font-medium">${total}</span>;
+      return <span className="font-medium">${total.toFixed(2)}</span>;
     },
   },
 

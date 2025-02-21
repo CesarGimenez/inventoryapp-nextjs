@@ -16,7 +16,16 @@ interface Categories {
 interface Worker {
   _id: string;
   name: string;
-  email: string;
+  email?: string;
+  type: string;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  is_active: boolean;
 }
 
 type CompanyStore = {
@@ -25,12 +34,14 @@ type CompanyStore = {
   loading: boolean;
   categories: Categories[];
   workers: Worker[];
+  availableProducts: Product[];
 
   setCompany: (company: Company) => void;
   setCompanies: (companies: Company[]) => void;
   pushCompany: (company: Company) => void;
   setCategories: (categories: Categories[]) => void;
   setWorkers: (workers: Worker[]) => void;
+  setAvailableProducts: (products: Product[]) => void;
 };
 
 const initialStateCompany: Company | null = {
@@ -48,6 +59,7 @@ export const useCompanyStore = create<CompanyStore>()(
       loading: false,
       categories: [],
       workers: [],
+      availableProducts: [],
 
       setCompany: (company: Company) => set({ defaultCompany: company }),
       setCompanies: (companies: Company[]) => set({ companies }),
@@ -57,6 +69,7 @@ export const useCompanyStore = create<CompanyStore>()(
       },
       setCategories: (categories: Categories[]) => set({ categories }),
       setWorkers: (workers: Worker[]) => set({ workers }),
+      setAvailableProducts: (products: Product[]) => set({ availableProducts: products }),
     }),
     {
       name: "companies",

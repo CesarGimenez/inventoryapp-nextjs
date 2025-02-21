@@ -6,13 +6,13 @@ import {
   DollarSign,
   Home,
   LogOut,
+  NotebookPen,
   Package,
   Package2,
   Truck,
   Users2,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuthStore, useCompanyStore } from "@/store";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -51,14 +51,22 @@ const adminLinks = [
   { name: "Ventas", href: "payments", icon: DollarSign },
 ];
 
+const almacenLinks = [
+  { name: "Inicio", href: "home", icon: Home },
+  { name: "Movimientos", href: "movements", icon: NotebookPen },
+  { name: "Productos", href: "products", icon: Package },
+  { name: "Categorias", href: "categories", icon: Package2 },
+  { name: "Clientes", href: "clients", icon: BookUser },
+  { name: "Trabajadores", href: "workers", icon: Users2 },
+  { name: "Vehiculos", href: "trucks", icon: Truck },
+]
+
 const commonLinks = [
   { name: "Inicio", href: "home", icon: Home },
   { name: "Productos", href: "products", icon: Package },
 ];
 
-const initialLink = [
-  { name: "Inicio", href: "home", icon: Home },
-]
+const initialLink = [{ name: "Inicio", href: "home", icon: Home }];
 
 export default function DashboardLayout({
   children,
@@ -67,14 +75,15 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [showSidebar, setShowSidebar] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [links, setLinks] = useState(ownerLinks);
 
   const { user, token, loading, logout } = useAuthStore((state) => state);
   const { defaultCompany, companies, setCompany } = useCompanyStore(
     (state) => state
   );
 
-  const handleShowSidebar = () => setShowSidebar((prev) => !prev)
+  const handleShowSidebar = () => setShowSidebar((prev) => !prev);
 
   const typeUser = user?.type as string;
 
@@ -84,46 +93,60 @@ export default function DashboardLayout({
     }
   }, [user, token, loading, router]);
 
+  useEffect(() => {
+    if(!defaultCompany) {
+      setLinks(initialLink);
+    } else if(user?.type === "PROPIETARIO") {
+      setLinks(defaultCompany?.type === "ALMACEN" ? almacenLinks : ownerLinks);
+    } else if (user?.type === "ADMINISTRADOR") {
+      setLinks(defaultCompany?.type === "ALMACEN" ? almacenLinks : adminLinks);
+    } else {
+      setLinks(commonLinks);
+    }
+  }, [defaultCompany, links, user?.type]);
+
   const renderCompanyOptions = () => {
     return (
       <>
-           {user?.type === "PROPIETARIO" ? (
-        <Select
-          defaultValue={defaultCompany?._id}
-          value={defaultCompany?._id}
-          onValueChange={(value) => {
-            const company = companies.find(
-              (company) => company._id === value
-            );
-            if (company) {
-              setCompany(company);
-            }
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={defaultCompany?.name ?? "Selecciona una empresa"} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Tus empresas</SelectLabel>
-              {companies.map((company) => (
-                <SelectItem key={company._id} value={company._id}>
-                  {company.name}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-          <SelectSeparator />
-          {user?.type === "PROPIETARIO" && <CreateCompany />}
-        </Select>
-      ) : user?.type === "PROPIETARIO" ? (
-        <CreateCompany />
-      ) : (
-        <p>{user?.company?.name}</p>
-      )}
+        {user?.type === "PROPIETARIO" ? (
+          <Select
+            defaultValue={defaultCompany?._id}
+            value={defaultCompany?._id}
+            onValueChange={(value) => {
+              const company = companies.find(
+                (company) => company._id === value
+              );
+              if (company) {
+                setCompany(company);
+              }
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue
+                placeholder={defaultCompany?.name ?? "Selecciona una empresa"}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Tus empresas</SelectLabel>
+                {companies.map((company) => (
+                  <SelectItem key={company._id} value={company._id}>
+                    {company.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+            <SelectSeparator />
+            {user?.type === "PROPIETARIO" && <CreateCompany />}
+          </Select>
+        ) : user?.type === "PROPIETARIO" ? (
+          <CreateCompany />
+        ) : (
+          <p>{user?.company?.name}</p>
+        )}
       </>
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -182,10 +205,10 @@ export default function DashboardLayout({
             </div>
             <div className="flex items-center justify-end space-x-4">
               <div className="hidden md:flex items-center justify-center gap-4">
-              <p>Bienvenido, {user?.name}.</p>
-              {renderCompanyOptions()}
+                <p>Bienvenido, {user?.name}.</p>
+                {renderCompanyOptions()}
               </div>
-              
+
               <div className="hidden md:flex">
                 <Avatar>
                   <AvatarImage
@@ -197,7 +220,7 @@ export default function DashboardLayout({
                 <Button variant="ghost" className="ml-4" onClick={logout}>
                   Cerrar sesión
                 </Button>
-              </div>  
+              </div>
             </div>
           </div>
         </div>
@@ -206,29 +229,29 @@ export default function DashboardLayout({
         <aside
           id="sidebar"
           className={`fixed border border-gray-200 z-20 h-full top-0 left-0 pt-16 flex-col w-64 transition-all duration-500 ease-in-out 
-            ${showSidebar ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'} lg:translate-x-0 opacity-100`}
+            ${
+              showSidebar
+                ? "translate-x-0 opacity-100"
+                : "-translate-x-full opacity-0"
+            } lg:translate-x-0 opacity-100`}
           aria-label="Sidebar"
         >
-          <div className="relative flex-1 flex flex-col min-h-0 borderR border-gray-200 bg-white  pt-0 dark:bg-slate-900">
+          <div className="relative flex-1 flex flex-col min-h-screen borderR border-gray-200 bg-white  pt-0 dark:bg-slate-900 h-screen">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
               <div className="flex-1 px-3 bg-white divide-y space-y-1 dark:bg-slate-900">
                 <ul className="space-y-2 pb-2">
-                  {(!defaultCompany ? initialLink : ["PROPIETARIO"].includes(typeUser)
-                    ? ownerLinks
-                    : ["ADMINISTRADOR"].includes(typeUser)
-                    ? adminLinks
-                    : commonLinks).map((link) => (
+                  {links.map((link) => (
                     <li key={link.href}>
                       <span
                         // href={link.href}
-                        onClick={() => router.push('/dashboard/' + link.href)}
+                        onClick={() => router.push("/dashboard/" + link.href)}
                         className={`text-base capitalize text-gray-900 font-normal rounded-lg flex 
                           flex-row items-center p-2 hover:bg-secondary hover:text-primary group dark:bg-slate-900 
                           dark:hover:bg-slate-800 dark:text-slate-300 cursor-pointer ${
-                          pathname.includes(link.href)
-                            ? "bg-secondary text-primary"
-                            : ""
-                        }`}
+                            pathname.includes(link.href)
+                              ? "bg-secondary text-primary"
+                              : ""
+                          }`}
                       >
                         <link.icon />
                         <span className="ml-3"> {link.name}</span>
@@ -237,12 +260,12 @@ export default function DashboardLayout({
                   ))}
                 </ul>
 
-                <DividerHorizontalIcon  />
+                <DividerHorizontalIcon />
 
                 <div className="block md:hidden pt-4">
                   {renderCompanyOptions()}
                   <Button variant="ghost" onClick={logout}>
-                    <LogOut className="pr-2"/> Cerrar sesión
+                    <LogOut className="pr-2" /> Cerrar sesión
                   </Button>
                 </div>
               </div>
@@ -257,7 +280,7 @@ export default function DashboardLayout({
           id="main-content"
           className="h-full w-full bg-gray-50 relative overflow-y-auto lg:ml-64 dark:bg-black z-0"
         >
-          <main>
+          <main onClick={() => setShowSidebar(false)}>
             <div className="pt-6 px-4">
               <div className="w-full min-h-[calc(100vh-230px)]">
                 <div className="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 dark:bg-slate-900">
@@ -380,10 +403,8 @@ export default function DashboardLayout({
           </footer>
           <p className="text-center text-sm text-gray-500 my-10 print:hidden">
             &copy; 2024-{new Date().getFullYear()}{" "}
-            <a href="#" className="hover:underline" target="_blank">
-              
-            </a>
-            . Develop by Cesar Gimenez.
+            <a href="#" className="hover:underline" target="_blank"></a>.
+            Develop by Cesar Gimenez.
           </p>
         </div>
       </div>

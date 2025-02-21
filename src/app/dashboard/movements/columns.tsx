@@ -1,8 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { ColumnDef, FilterFn, Row, SortDirection } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
+import { ColumnDef, SortDirection } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,23 +21,28 @@ import {
   DotsHorizontalIcon,
 } from "@radix-ui/react-icons";
 import { toast } from "sonner";
+import { Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
-// import { toast } from "@/components/ui/use-toast";
+interface Payment {
+  _id: string;
+  status: string;
+}
+// const myCustomFilterFn: FilterFn<Payment> = (
+//   row: Row<Payment>,
+//   columnId: string,
+//   filterValue: string,
+//   addMeta: (meta: any) => void
+// ) => {
+//   filterValue = filterValue.toLowerCase();
 
-const myCustomFilterFn: FilterFn<any> = (
-  row: Row<any>,
-  columnId: string,
-  filterValue: string,
-  addMeta: (meta: any) => void
-) => {
-  filterValue = filterValue.toLowerCase();
+//   const filterParts = filterValue.split(" ");
+//   const rowValues =
+//     `${row.original.email} ${row.original.clientName} ${row.original.status}`.toLowerCase();
 
-  const filterParts = filterValue.split(" ");
-  const rowValues =
-    `${row.original.email} ${row.original.clientName} ${row.original.status}`.toLowerCase();
-
-  return filterParts.every((part) => rowValues.includes(part));
-};
+//   return filterParts.every((part) => rowValues.includes(part));
+// };
 
 const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {
   if (isSorted === "asc") {
@@ -52,7 +56,7 @@ const SortedIcon = ({ isSorted }: { isSorted: false | SortDirection }) => {
   return null;
 };
 
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<Payment>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -76,120 +80,96 @@ export const columns: ColumnDef<any>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "driver",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Nombre
+          Conductor
           <SortedIcon isSorted={column.getIsSorted()} />
         </Button>
       );
     },
   },
   {
-    accessorKey: "is_active",
+    accessorKey: "type",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Estatus
+          Tipo
           <SortedIcon isSorted={column.getIsSorted()} />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue("is_active") as string;
-
+      const type = row.getValue("type") as string;
+      const variant = type === "INGRESO" ? "success" : "destructive";
       return (
-        <Badge variant={status ? 'success' : 'destructive'} capitalize>
-          {status ? "Activo" : "Inactivo"}
+        <Badge variant={variant} capitalize>
+          {type.toLowerCase()}
         </Badge>
       );
     },
   },
 
   {
-    accessorKey: "price",
+    accessorKey: "createdAt",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Precio
+          Fecha de creacion
           <SortedIcon isSorted={column.getIsSorted()} />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const price = row.getValue("price") as Number;
+      const createdAt = row.getValue("createdAt") as string;
 
       return (
-        <span className="font-medium">${price.toFixed(2)}</span>
+        <span>
+          {format(new Date(createdAt), "dd/MM/yyyy - hh:mm a")}
+        </span>
       );
     },
   },
 
   {
-    accessorKey: "quantity",
+    accessorKey: "createdBy",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Existencia
+          Encargado
           <SortedIcon isSorted={column.getIsSorted()} />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const quantity = row.getValue("quantity") as number;
+      const createdBy = row.getValue("createdBy") as string;
 
-      return (
-        <Badge variant={quantity > 20 ? "success" : quantity > 10 ? "info" : "destructive"} capitalize>
-          {quantity} Unidades
-        </Badge>
-      );
-    },
-  },
-
-  {
-    accessorKey: "category",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Categoría
-          <SortedIcon isSorted={column.getIsSorted()} />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const category = row.getValue("category") as string;
-
-      return (
-        <span className="font-medium">{category}</span>
-      );
+      return <span className="font-medium">{createdBy}</span>;
     },
   },
 
   {
     id: "actions",
     cell: ({ row }) => {
-      const product = row.original;
-      
-      const ActionsMenu = () => { // This is now a functional component
+      const payment = row.original;
+
+      const ActionsMenu = () => {
         const router = useRouter();
-        const handleEdit = () => {
-          router.push(`/dashboard/products/edit-product?id=${product._id}`);
+        const redirectPaymentDetails = () => {
+          router.push(`/dashboard/payments/payment-detail?id=${payment._id}`);
         };
 
         return (
@@ -204,8 +184,8 @@ export const columns: ColumnDef<any>[] = [
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() => {
-                  navigator.clipboard.writeText(product.id);
-                  toast("Product ID copied to clipboard", {
+                  navigator.clipboard.writeText(payment._id);
+                  toast("Payment ID copied to clipboard", {
                     position: "top-right",
                     duration: 3000,
                   });
@@ -214,8 +194,12 @@ export const columns: ColumnDef<any>[] = [
                 Copiar ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
-                Editar
+              <DropdownMenuItem
+                onClick={redirectPaymentDetails}
+                className="cursor-pointer"
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Ver detalle
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

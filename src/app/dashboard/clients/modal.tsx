@@ -44,6 +44,7 @@ const FormSchema = z.object({
   address: z.string({
     required_error: "Por favor, introduce una direccion.",
   }),
+  days_credit: z.number().min(0).default(0),
   createdBy: z.string().optional(),
 });
 
@@ -62,7 +63,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
   const { toast } = useToast();
 
   const { defaultCompany } = useCompanyStore((state) => state);
-  const { user } = useAuthStore((state) => state);
+  // const { user } = useAuthStore((state) => state);
 
   const { mutate, isPending} = useMutation({
     mutationFn: async (data: createClientType) => {
@@ -78,6 +79,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
       form.setValue('name', '')
       form.setValue('phone', '')
       form.setValue('address', '')
+      form.setValue('days_credit', 0)
       setOpen(false);
     },
     onError: () => {
@@ -148,6 +150,26 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
                   <Input
                     placeholder="Direccion"
                     type="text"
+                    {...field}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="days_credit"
+              render={({ field: { onChange, ...field } } ) => (
+                <FormItem>
+                  <FormLabel>Dias de credito (Opcional)</FormLabel>
+                  <Input
+                    placeholder="Dias de credito"
+                    type="number"
+                    step={1}
+                    min={0}
+                    max={30}
+                    onChange={(e) => onChange(Number(e.target.value))}
                     {...field}
                   />
                   <FormMessage />
