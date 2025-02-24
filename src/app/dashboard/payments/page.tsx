@@ -42,7 +42,7 @@ export default function Page() {
         <Button variant={selectType === "TODOS" ? "default" : "outline"} onClick={() => setSelectType("TODOS")}>TODOS</Button>
         <Button variant={selectType === "Retraso" ? "default" : "outline"} onClick={() => setSelectType("Retraso")}>
           <span className="flex gap-2 items-center">
-            <Eye /> Pagos con retraso
+            <Eye /> Con retraso
           </span>
         </Button>
       </div>

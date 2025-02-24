@@ -5,3 +5,9 @@ export const createCompanyApi = (data: any) => QueryApi({
     url: "v1/companies",
     data
 });
+
+// export const getMyCompanies = (id: string) => QueryApi({
+//     type: "GET",
+//     url: "v1/companies",
+//     id
+// });

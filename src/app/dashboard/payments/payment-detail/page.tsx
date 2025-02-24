@@ -4,11 +4,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { usePayment } from "../usePayment";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "lucide-react";
+import { Badge, BadgeDollarSign, ClockAlertIcon } from "lucide-react";
 import { differenceInDays, format } from "date-fns";
 import { Separator } from "@radix-ui/react-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
+import { PartialPaymentModal } from "@/components/Modals/PartialPaymentModal";
+
+const ABONOS = [
+  { amount: 500, date: '2023-01-01' },
+  { amount: 500, date: '2023-02-01' },
+  { amount: 500, date: '2023-03-01' },
+]
 
 const Page = () => {
   return (
@@ -21,11 +28,10 @@ const Page = () => {
 const PaymentDetail = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const { dataDetail: paymentDetail } = usePayment(id as string);
+  const { dataDetail: paymentDetail, refetchDetail } = usePayment(id as string);
 
   const router = useRouter();
 
-  console.log(paymentDetail?.payment_details)
   return (
     <div>
       <Button onClick={() => router.push("/dashboard/payments")}>Regresar</Button>
@@ -36,16 +42,37 @@ const PaymentDetail = () => {
               <CardTitle className="text-xl font-bold text-primary">
                 Detalle de Pago
               </CardTitle>
-              <Button>Imprimir factura</Button>
+              <div className="flex gap-2">
+                <Button>Imprimir factura</Button>
+                {
+                  paymentDetail.status === "Pendiente" && (
+                    <PartialPaymentModal paymentId={id as string} refetch={refetchDetail} pending={Number(paymentDetail.pending)}/>
+                  )
+                }
+              </div>   
             </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-medium">Monto: </span>
+                <span className="text-lg font-medium">Monto total: </span>
                 <div className="flex gap-2">
                   ${Number(paymentDetail.total).toFixed(2)}{" "}
                   <Badge className="text-lg"></Badge>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-medium">Abonado: </span>
+                <div className="flex gap-2">
+                  ${paymentDetail.payed ? Number(paymentDetail.payed).toFixed(2) : 0}{" "}
+                  <BadgeDollarSign className="text-lg"></BadgeDollarSign>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-medium">Pendiente por pagar: </span>
+                <div className="flex gap-2">
+                  ${Number(paymentDetail.pending).toFixed(2)}{" "}
+                  <ClockAlertIcon className="text-lg"></ClockAlertIcon>
                 </div>
               </div>
               <div className="flex justify-between items-center">
@@ -77,7 +104,7 @@ const PaymentDetail = () => {
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-lg font-medium">Fecha de pago:</span>
+                <span className="text-lg font-medium">Fecha de pago (Monto total):</span>
                 <span
                   className={`font-medium ${
                     !paymentDetail.payment_date &&
@@ -168,7 +195,7 @@ const PaymentDetail = () => {
                 <h3 className="text-lg font-semibold mb-2 text-primary">Detalle de Pago</h3>
                 <table className="w-full border-collapse border border-gray-300">
                   <thead>
-                    <tr className="bg-gray-100">
+                    <tr className="bg-primary">
                       <th className="border border-gray-300 px-4 py-2 text-left">
                         Producto
                       </th>
@@ -206,6 +233,41 @@ const PaymentDetail = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Abonos */}
+              {
+                paymentDetail?.partial_payments && paymentDetail?.partial_payments?.length > 0 && (
+                  <div>
+                <h3 className="text-lg font-semibold mb-2 text-primary">Abonos</h3>
+                <table className="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr className="bg-primary">
+                      <th className="border border-gray-300 px-4 py-2 text-left">
+                        Fecha
+                      </th>
+                      <th className="border border-gray-300 px-4 py-2 text-left">
+                        Monto
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      paymentDetail?.partial_payments?.map((abono: any, index: number) => (
+                        <tr key={index} className="border border-gray-300">
+                          <td className="border border-gray-300 px-4 py-2">
+                            {format(new Date(abono.createdAt), "dd/MM/yyyy - hh:mm a")}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            ${Number(abono?.amount).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+                )
+              }
+              
             </div>
           </CardContent>
         </Card>

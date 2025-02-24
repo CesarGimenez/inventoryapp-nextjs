@@ -15,6 +15,9 @@ interface Payment {
   client: Client;
   seller: Seller;
   payment_details: PaymentDetail[]
+  payed?: number;
+  pending?: number;
+  partial_payments?: PartialPayment[];
 }
 
 interface Client {
@@ -43,6 +46,11 @@ interface PaymentDetail {
   price: number;
 }
 
+interface PartialPayment {
+  amount: number;
+  createdAt: string;
+}
+
 export const getMyPayments = (id: string) => QueryApi({
     type: "GET",
     url: "v1/payments/company",
@@ -61,6 +69,13 @@ export const setCompletePayment = (id: string, data = { status: 'Pagado'}) => Qu
     url: 'v1/payments',
     data,
     id,
+})
+
+export const addPartialPayment = (id: string, data: { amount: number}) => QueryApi({
+  type: 'PATCH',
+  url: 'v1/payments/partial',
+  data,
+  id,
 })
 
 export const getPaymentDetails = (id: string): Promise<Payment> => QueryApi({
