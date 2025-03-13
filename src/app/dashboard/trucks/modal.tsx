@@ -134,7 +134,7 @@ export const TruckModal = ({ refetch = () => {} }: Props) => {
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="driver"
               render={({ field: { onChange, ...field } }) => (
@@ -143,13 +143,13 @@ export const TruckModal = ({ refetch = () => {} }: Props) => {
                   <Input
                     placeholder="Conductor"
                     type="text"
-                    onChange={(e) => onChange(Number(e.target.value))}
+                    onChange={(e) => onChange(e.target.value)}
                     {...field}
                   />
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormField
               control={form.control}

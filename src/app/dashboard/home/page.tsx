@@ -4,7 +4,7 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { AreaChartComponent } from "@/components/Charts/AreaChart";
 import { Text } from "@/components/Typography/Text";
-import { useCompanyStore } from "@/store";
+import { useAuthStore, useCompanyStore } from "@/store";
 
 import NotDataDashboard from "../../../assets/icons/not-data-dashboard.svg";
 
@@ -24,30 +24,18 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { es } from "date-fns/locale";
-
-const latestWithdrawals = [
-  {
-    driver: "Juan Pérez",
-    registrar: "Ana Gómez",
-    plate: "ABC-123",
-    brand: "Ford",
-    timeAgo: "2 horas",
-  },
-  {
-    driver: "Luis Martínez",
-    registrar: "Carlos Rodríguez",
-    plate: "XYZ-456",
-    brand: "Chevrolet",
-    timeAgo: "5 horas",
-  },
-  {
-    driver: "María López",
-    registrar: "Pedro Fernández",
-    plate: "LMN-789",
-    brand: "Toyota",
-    timeAgo: "1 día",
-  },
-];
+import { redirect, useRouter } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { formatCurrency } from "@/utils";
+import PieChartCategories from "@/components/Charts/PieChartCategories";
 
 interface Movement {
   driver: string;
@@ -99,7 +87,6 @@ const DashboardAlmacen = () => {
     );
   }
 
-  console.log(retiros)
   return (
     <div className="p-6">
       <Text>Dashboard</Text>
@@ -108,12 +95,12 @@ const DashboardAlmacen = () => {
           <h1 className="text-xl mb-4">Retiros recientes</h1>
 
           {retiros.length === 0 && (
-              <div className="flex flex-col items-center justify-center gap-4">
-                <p className="text-center text-lg text-gray-500">
-                  No hay retiros registrados
-                </p>
-              </div>
-            )}
+            <div className="flex flex-col items-center justify-center gap-4">
+              <p className="text-center text-lg text-gray-500">
+                No hay retiros registrados
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-6">
             {retiros.length > 0 &&
@@ -149,12 +136,12 @@ const DashboardAlmacen = () => {
           <h1 className="text-xl mb-4 mt-4">Ingresos recientes</h1>
 
           {ingresos.length === 0 && (
-              <div className="flex flex-col items-center justify-center gap-4">
-                <p className="text-center text-lg text-gray-500">
-                  No hay retiros registrados
-                </p>
-              </div>
-            )}
+            <div className="flex flex-col items-center justify-center gap-4">
+              <p className="text-center text-lg text-gray-500">
+                No hay retiros registrados
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-6">
             {ingresos.length > 0 &&
@@ -218,10 +205,13 @@ const DashboardAlmacen = () => {
                         {product.category}
                       </td>
                       <td className="py-2 px-4 border text-center">
-                        {formatDistanceToNowStrict(new Date(product.updatedAt), {
-                          addSuffix: true,
-                          locale: es,
-                        })}
+                        {formatDistanceToNowStrict(
+                          new Date(product.updatedAt),
+                          {
+                            addSuffix: true,
+                            locale: es,
+                          }
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -235,7 +225,25 @@ const DashboardAlmacen = () => {
 
 const DashboardCommerce = () => {
   const { defaultCompany } = useCompanyStore((state) => state);
-  const { data, isLoading, isFetching } = useAnalytics();
+  const { user } = useAuthStore((state) => state);
+  const enabled =
+    !!user?.type && ["PROPIETARIO", "ADMINISTRADOR"].includes(user?.type);
+
+  const [selectedDate, setSelectedDate] = useState("CurrentYear");
+
+  const { data, isLoading, isFetching, refetch } = useAnalytics(selectedDate);
+
+  useEffect(() => {
+    refetch();
+  }, [selectedDate, refetch]);
+
+  if (!enabled) {
+    return (
+      <div>
+        <p>Acceso denegado</p>
+      </div>
+    );
+  }
 
   if (isFetching || isLoading || !data) {
     return (
@@ -248,7 +256,24 @@ const DashboardCommerce = () => {
 
   return (
     <div className="p-6">
-      <Text>Dashboard</Text>
+      <div className="flex items-center justify-between">
+        <Text>Dashboard</Text>
+
+        <Select value={selectedDate} onValueChange={setSelectedDate}>
+          <SelectTrigger className="w-[180px] ml-2">
+            <SelectValue placeholder="Hoy" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="CurrentYear">Este año </SelectItem>
+              <SelectItem value="CurrentMonth">Este mes</SelectItem>
+              <SelectItem value="PreviousMonth">Mes anterior</SelectItem>
+              <SelectItem value="CurrentWeek">Esta semana</SelectItem>
+              <SelectItem value="PreviousWeek">Semana pasada</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
 
       {!defaultCompany ? (
         <div className="flex flex-col items-center justify-center gap-4">
@@ -263,19 +288,26 @@ const DashboardCommerce = () => {
             {/* Tarjeta de Estadísticas */}
             <Card className="hover:bg-gray-100 hover:cursor-pointer">
               <CardHeader>
-                <h1 className="text-lg font-bold text-primary">Total Ventas Estimadas</h1>
+                <h1 className="text-lg font-bold text-primary">
+                  Total Ventas Estimadas
+                </h1>
               </CardHeader>
               <CardContent>
                 <h1 className="text-2xl">
-                  $
-                  {new Intl.NumberFormat("es-AR").format(
-                    !data?.totalSelled ? 0 : Number(data.totalSelled)
-                  )}
+                  ${formatCurrency(!data?.totalSelled ? 0 : data.totalSelled)}
                 </h1>
 
                 <div className="flex flex-col justify-between mt-2">
-                  <span className="text-green-600">Pagado: {!data?.totalPayed ? "$0" : `$${Number(data.totalPayed)}`}</span>
-                  <span className="text-red-600">Pendientes por pagar: {!data?.totalPending ? "$0" : `$${Number(data.totalPending)}`}</span>
+                  <span className="text-green-600">
+                    Pagado: $
+                    {formatCurrency(!data?.totalPayed ? 0 : data.totalPayed)}
+                  </span>
+                  <span className="text-red-600">
+                    Pendientes por pagar: $
+                    {formatCurrency(
+                      !data?.totalPending ? 0 : data.totalPending
+                    )}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -307,24 +339,35 @@ const DashboardCommerce = () => {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-3">
-            {data?.paymentsPerMonth?.chartData?.length > 0 && (
-              <div className="mt-8">
-                <h1 className="text-xl mb-4">Ventas Mensuales</h1>
-                <AreaChartComponent data={data?.paymentsPerMonth} />
-              </div>
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 lg:grid-cols-3">
+            {data?.paymentsPerMonth?.chartData?.length > 0 &&
+              selectedDate === "CurrentYear" && (
+                <div className="mt-8">
+                  <h1 className="text-xl mb-4">Ventas Mensuales</h1>
+                  <AreaChartComponent data={data?.paymentsPerMonth} />
+                </div>
+              )}
 
             {data?.bestClients?.length > 0 && (
               <div className="mt-8">
-                <h1 className="text-xl mb-4">Mejores Clientes</h1>
+                <h1 className="text-xl mb-4">Ventas por cliente</h1>
                 <BestClientsList data={data?.bestClients} />
               </div>
             )}
-            <div className="mt-8">
-              <h1 className="text-xl mb-4">Productos mas vendidos</h1>
-              <ProductSalesPieChart />
-            </div>
+
+            {data?.mostSelledProducts && data.mostSelledProducts.length > 0 && (
+              <div className="mt-8">
+                <h1 className="text-xl mb-4">Mas ventas por producto ($)</h1>
+                <ProductSalesPieChart data={data.mostSelledProducts} />
+              </div>
+            )}
+
+            {data?.mostSelledCategories && data.mostSelledCategories.length > 0 && (
+              <div className="mt-8">
+                <h1 className="text-xl mb-4">Mas ventas por categoria ($)</h1>
+                <PieChartCategories data={data.mostSelledCategories} />
+              </div>
+            )}
           </div>
         </>
       )}

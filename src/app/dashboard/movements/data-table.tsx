@@ -24,13 +24,6 @@ import {
 } from "@/components/ui/table";
 
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -41,8 +34,6 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import type { Payment } from "@/data/payments.data";
 import { Loader2 } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
@@ -123,34 +114,6 @@ export function DataTable<TData, TValue>({
             Delete
           </Button>
         )} */}
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columnas
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .filter((column) => column.id !== "actions")
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         <Button className="ml-2" onClick={refetch}>
           <Loader2 className="mr-2 h-4 w-4" /> Actualizar

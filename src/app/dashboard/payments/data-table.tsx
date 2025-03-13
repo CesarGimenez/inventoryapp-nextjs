@@ -24,13 +24,6 @@ import {
 } from "@/components/ui/table";
 
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -42,7 +35,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Payment } from "@/data/payments.data";
 import { Loader2 } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
@@ -94,84 +86,86 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder="Filtrar por ...(nombres, etc)"
-          value={(table.getColumn("client")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => {
-            setCurrentStatus("all");
-            table.getColumn("seller")?.setFilterValue(undefined);
-            table.getColumn("client")?.setFilterValue(event.target.value);
-          }}
-          className="max-w-sm"
-        />
-
-        <Select
-          value={currentStatus}
-          onValueChange={(value) => {
-            if (value === "all") {
-              table.getColumn("status")?.setFilterValue(undefined);
-              table.getColumn("payment_method")?.setFilterValue(undefined);
+      <div className="flex items-center justify-between py-4 flex-wrap">
+        <div className="flex gap-2 flex-wrap w-[70%] mb-2">
+          <Input
+            placeholder="Filtrar por ...(nombres, etc)"
+            value={
+              (table.getColumn("client")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) => {
               setCurrentStatus("all");
-              return;
-            }
+              table.getColumn("seller")?.setFilterValue(undefined);
+              table.getColumn("client")?.setFilterValue(event.target.value);
+            }}
+            className="max-w-sm"
+          />
 
-            setCurrentStatus(value);
-            table.getColumn("payment_method")?.setFilterValue(undefined);
-            table.getColumn("status")?.setFilterValue(value);
-          }}
-        >
-          <SelectTrigger className="w-[180px] ml-2">
-            <SelectValue placeholder="Estatus - Todos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Estatus</SelectLabel>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="Pagado">Pagados</SelectItem>
-              <SelectItem value="Pendiente">Pendientes</SelectItem>
-              <SelectItem value="Cancelado">Cancelados</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          <Select
+            value={currentStatus}
+            onValueChange={(value) => {
+              if (value === "all") {
+                table.getColumn("status")?.setFilterValue(undefined);
+                table.getColumn("payment_method")?.setFilterValue(undefined);
+                setCurrentStatus("all");
+                return;
+              }
 
-        <Select
-          value={currentMethod}
-          onValueChange={(value) => {
-            if (value === "all") {
-              table.getColumn("status")?.setFilterValue(undefined);
-              table.getColumn('payment_method')?.setFilterValue(undefined)
-              setCurrentMethod("all");
-              return;
-            }
+              setCurrentStatus(value);
+              table.getColumn("payment_method")?.setFilterValue(undefined);
+              table.getColumn("status")?.setFilterValue(value);
+            }}
+          >
+            <SelectTrigger className="w-[180px] ml-2">
+              <SelectValue placeholder="Estatus - Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Estatus</SelectLabel>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="Pagado">Pagados</SelectItem>
+                <SelectItem value="Pendiente">Pendientes</SelectItem>
+                <SelectItem value="Cancelado">Cancelados</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
 
-            if(value === "Crédito"){
-              setCurrentMethod("Crédito");
-              table.getColumn("payment_method")?.setFilterValue("Credito");
-              return;
-            }
-            setCurrentMethod(value);
-            table.getColumn("payment_method")?.setFilterValue(value);
-          }}
-        >
-          <SelectTrigger className="w-[180px] ml-2">
-            <SelectValue placeholder="Metodos de pago - Todos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Todos</SelectItem>
-              {
-                PaymentMethods.map((pm) => {
+          <Select
+            value={currentMethod}
+            onValueChange={(value) => {
+              if (value === "all") {
+                table.getColumn("status")?.setFilterValue(undefined);
+                table.getColumn("payment_method")?.setFilterValue(undefined);
+                setCurrentMethod("all");
+                return;
+              }
+
+              if (value === "Crédito") {
+                setCurrentMethod("Crédito");
+                table.getColumn("payment_method")?.setFilterValue("Credito");
+                return;
+              }
+              setCurrentMethod(value);
+              table.getColumn("payment_method")?.setFilterValue(value);
+            }}
+          >
+            <SelectTrigger className="w-[180px] ml-2">
+              <SelectValue placeholder="Metodos de pago - Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Todos</SelectItem>
+                {PaymentMethods.map((pm) => {
                   return (
                     <SelectItem key={pm} value={pm}>
                       {pm}
                     </SelectItem>
                   );
-                })
-              }
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+                })}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* {isDeleteVisible && (
           <Button
@@ -190,34 +184,6 @@ export function DataTable<TData, TValue>({
             Delete
           </Button>
         )} */}
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columnas
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .filter((column) => column.id !== "actions")
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         <Button className="ml-2" onClick={refetch}>
           <Loader2 className="mr-2 h-4 w-4" /> Actualizar

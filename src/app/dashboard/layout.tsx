@@ -59,7 +59,7 @@ const almacenLinks = [
   { name: "Clientes", href: "clients", icon: BookUser },
   { name: "Trabajadores", href: "workers", icon: Users2 },
   { name: "Vehiculos", href: "trucks", icon: Truck },
-]
+];
 
 const commonLinks = [
   { name: "Inicio", href: "home", icon: Home },
@@ -76,11 +76,15 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [showSidebar, setShowSidebar] = useState(false);
-  const [links, setLinks] = useState(ownerLinks);
+  const [links, setLinks] = useState(initialLink);
 
   const { user, token, loading, logout } = useAuthStore((state) => state);
   const { defaultCompany, companies, setCompany } = useCompanyStore(
     (state) => state
+  );
+
+  const enableSidebar = ["PROPIETARIO", "ADMINISTRADOR"].includes(
+    user?.type as string
   );
 
   const handleShowSidebar = () => setShowSidebar((prev) => !prev);
@@ -94,9 +98,9 @@ export default function DashboardLayout({
   }, [user, token, loading, router]);
 
   useEffect(() => {
-    if(!defaultCompany) {
+    if (!defaultCompany) {
       setLinks(initialLink);
-    } else if(user?.type === "PROPIETARIO") {
+    } else if (user?.type === "PROPIETARIO") {
       setLinks(defaultCompany?.type === "ALMACEN" ? almacenLinks : ownerLinks);
     } else if (user?.type === "ADMINISTRADOR") {
       setLinks(defaultCompany?.type === "ALMACEN" ? almacenLinks : adminLinks);
@@ -195,7 +199,7 @@ export default function DashboardLayout({
                 >
                   <span className="self-center whitespace-nowrap ml-2">
                     {" "}
-                    Cuarenta
+                    StockPRO
                   </span>
                 </a>
               </div>
@@ -226,52 +230,55 @@ export default function DashboardLayout({
         </div>
       </nav>
       <div className="flex overflow-hidden bg-white pt-16 dark:bg-slate-900">
-        <aside
-          id="sidebar"
-          className={`fixed border border-gray-200 z-20 h-full top-0 left-0 pt-16 flex-col w-64 transition-all duration-500 ease-in-out 
-            ${
-              showSidebar
-                ? "translate-x-0 opacity-100"
-                : "-translate-x-full opacity-0"
-            } lg:translate-x-0 opacity-100`}
-          aria-label="Sidebar"
-        >
-          <div className="relative flex-1 flex flex-col min-h-screen borderR border-gray-200 bg-white  pt-0 dark:bg-slate-900 h-screen">
-            <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="flex-1 px-3 bg-white divide-y space-y-1 dark:bg-slate-900">
-                <ul className="space-y-2 pb-2">
-                  {links.map((link) => (
-                    <li key={link.href}>
-                      <span
-                        // href={link.href}
-                        onClick={() => router.push("/dashboard/" + link.href)}
-                        className={`text-base capitalize text-gray-900 font-normal rounded-lg flex 
-                          flex-row items-center p-2 hover:bg-secondary hover:text-primary group dark:bg-slate-900 
-                          dark:hover:bg-slate-800 dark:text-slate-300 cursor-pointer ${
-                            pathname.includes(link.href)
-                              ? "bg-secondary text-primary"
-                              : ""
-                          }`}
-                      >
-                        <link.icon />
-                        <span className="ml-3"> {link.name}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+        {enableSidebar && (
+          <aside
+            id="sidebar"
+            className={`fixed border border-gray-200 z-20 h-full top-0 left-0 pt-16 flex-col w-64 transition-all duration-500 ease-in-out 
+              ${
+                showSidebar
+                  ? "translate-x-0 opacity-100"
+                  : "-translate-x-full opacity-0"
+              } lg:translate-x-0 opacity-100`}
+            aria-label="Sidebar"
+          >
+            <div className="relative flex-1 flex flex-col min-h-screen borderR border-gray-200 bg-white  pt-0 dark:bg-slate-900 h-screen">
+              <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                <div className="flex-1 px-3 bg-white divide-y space-y-1 dark:bg-slate-900">
+                  <ul className="space-y-2 pb-2">
+                    {links.map((link) => (
+                      <li key={link.href}>
+                        <span
+                          // href={link.href}
+                          onClick={() => router.push("/dashboard/" + link.href)}
+                          className={`text-base capitalize text-gray-900 font-normal rounded-lg flex 
+                            flex-row items-center p-2 hover:bg-secondary hover:text-primary group dark:bg-slate-900 
+                            dark:hover:bg-slate-800 dark:text-slate-300 cursor-pointer ${
+                              pathname.includes(link.href)
+                                ? "bg-secondary text-primary"
+                                : ""
+                            }`}
+                        >
+                          <link.icon />
+                          <span className="ml-3"> {link.name}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
 
-                <DividerHorizontalIcon />
+                  <DividerHorizontalIcon />
 
-                <div className="block md:hidden pt-4">
-                  {renderCompanyOptions()}
-                  <Button variant="ghost" onClick={logout}>
-                    <LogOut className="pr-2" /> Cerrar sesión
-                  </Button>
+                  <div className="block md:hidden pt-4">
+                    {renderCompanyOptions()}
+                    <Button variant="ghost" onClick={logout}>
+                      <LogOut className="pr-2" /> Cerrar sesión
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </aside>
+          </aside>
+        )}
+
         <div
           className="bg-gray-900 opacity-50 hidden fixed inset-0 z-10"
           id="sidebarBackdrop"
@@ -289,7 +296,7 @@ export default function DashboardLayout({
               </div>
             </div>
           </main>
-          <footer className="bg-white md:flex md:items-center md:justify-between shadow rounded-lg p-4 md:p-6 xl:p-8 my-6 mx-4 print:hidden dark:bg-slate-900">
+          {/* <footer className="bg-white md:flex md:items-center md:justify-between shadow rounded-lg p-4 md:p-6 xl:p-8 my-6 mx-4 print:hidden dark:bg-slate-900">
             <ul className="flex items-center flex-wrap mb-6 md:mb-0">
               <li>
                 <a
@@ -400,7 +407,7 @@ export default function DashboardLayout({
                 </svg>
               </a>
             </div>
-          </footer>
+          </footer> */}
           <p className="text-center text-sm text-gray-500 my-10 print:hidden">
             &copy; 2024-{new Date().getFullYear()}{" "}
             <a href="#" className="hover:underline" target="_blank"></a>.

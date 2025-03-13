@@ -56,7 +56,7 @@ const FormSchema = z.object({
 type createUserType = z.infer<typeof FormSchema>;
 
 enum userTypeEnum {
-  EMPLEADO = "EMPLEADO",
+  // EMPLEADO = "EMPLEADO",
   VENDEDOR = "VENDEDOR",
   CONDUCTOR = "CONDUCTOR",
   ADMINISTRADOR = "ADMINISTRADOR",

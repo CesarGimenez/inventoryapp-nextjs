@@ -19,7 +19,7 @@ const fontSans = FontSans({
 });
 
 export const metadata: Metadata = {
-  title: "Cuarenta App",
+  title: "StockPRO",
   description: "",
 };
 

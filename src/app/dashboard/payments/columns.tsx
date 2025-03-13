@@ -22,17 +22,16 @@ import {
 } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 import { Check, Clock, Download, Eye, Printer, X } from "lucide-react";
-import {
-  downloadInvoice,
-  printInvoice,
-} from "./api";
+import { downloadInvoice, printInvoice } from "./api";
 import { useRouter } from "next/navigation";
 import { usePayment } from "./usePayment";
+import { formatCurrency } from "@/utils";
 
 interface Payment {
   _id: string;
   status: string;
   days_overdue?: number;
+  client?: string;
 }
 // const myCustomFilterFn: FilterFn<Payment> = (
 //   row: Row<Payment>,
@@ -116,16 +115,23 @@ export const columns: ColumnDef<Payment>[] = [
       const overdue = Number(row.original.days_overdue);
       const isOverdue = overdue > 0 && status === "Pendiente";
 
-      const variant =
-        isOverdue ? "destructive" :
-        status === "Pagado"
-          ? "success"
-          : status === "Pendiente"
-          ? "info"
-          : "destructive";
+      const variant = isOverdue
+        ? "destructive"
+        : status === "Pagado"
+        ? "success"
+        : status === "Pendiente"
+        ? "info"
+        : "destructive";
       return (
         <Badge variant={variant} capitalize>
-          {isOverdue ? (<><Clock className="mr-2 h-4 w-4" /><span>Retraso ({overdue} dias)</span></>) : status}
+          {isOverdue ? (
+            <>
+              <Clock className="mr-2 h-4 w-4" />
+              <span>Retraso ({overdue} dias)</span>
+            </>
+          ) : (
+            status
+          )}
         </Badge>
       );
     },
@@ -147,7 +153,7 @@ export const columns: ColumnDef<Payment>[] = [
     cell: ({ row }) => {
       const total = row.getValue("total") as number;
 
-      return <span className="font-medium">${total.toFixed(2)}</span>;
+      return <span className="font-medium">${formatCurrency(total)}</span>;
     },
   },
 
@@ -204,6 +210,12 @@ export const columns: ColumnDef<Payment>[] = [
         };
         const setCompletePayment = () => setComplete(payment._id);
         const setPendingPayment = () => setPending(payment._id);
+        const handlePrintInvoice = () => {
+          printInvoice(payment._id);
+        };
+        const handleDownloadInvoice = () => {
+          downloadInvoice(payment._id, payment.client);
+        }
 
         return (
           <DropdownMenu>
@@ -237,13 +249,16 @@ export const columns: ColumnDef<Payment>[] = [
               {(payment.status as string) === "Pagado" && (
                 <>
                   <DropdownMenuItem
-                    onClick={downloadInvoice}
+                    onClick={handleDownloadInvoice}
                     className="cursor-pointer"
                   >
                     <Download className="mr-2 h-4 w-4" />
                     Descargar factura
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={printInvoice} className="cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={handlePrintInvoice}
+                    className="cursor-pointer"
+                  >
                     <Printer className="mr-2 h-4 w-4" />
                     Imprimir factura
                   </DropdownMenuItem>
@@ -260,11 +275,11 @@ export const columns: ColumnDef<Payment>[] = [
               )}
               {(payment.status as string) === "Pendiente" && (
                 <>
-                  <DropdownMenuItem className="cursor-pointer">
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleDownloadInvoice}>
                     <Download className="mr-2 h-4 w-4" />
                     Descargar factura
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
+                  <DropdownMenuItem className="cursor-pointer" onClick={handlePrintInvoice}>
                     <Printer className="mr-2 h-4 w-4" />
                     Imprimir factura
                   </DropdownMenuItem>

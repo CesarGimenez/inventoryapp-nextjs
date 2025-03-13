@@ -10,12 +10,9 @@ import { Separator } from "@radix-ui/react-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
 import { PartialPaymentModal } from "@/components/Modals/PartialPaymentModal";
-
-const ABONOS = [
-  { amount: 500, date: '2023-01-01' },
-  { amount: 500, date: '2023-02-01' },
-  { amount: 500, date: '2023-03-01' },
-]
+import { useAuthStore } from "@/store";
+import { formatCurrency } from "@/utils";
+import { printInvoice } from "../api";
 
 const Page = () => {
   return (
@@ -28,13 +25,25 @@ const Page = () => {
 const PaymentDetail = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const user = useAuthStore((state) => state.user);
   const { dataDetail: paymentDetail, refetchDetail } = usePayment(id as string);
 
   const router = useRouter();
 
+  const handleRedirect = () => {
+    if(user?.type === "VENDEDOR") {
+      router.push(`/dashboard/new-payment`);
+      return;
+    }
+    if(user?.type === "PROPIETARIO" || user?.type === "ADMINISTRADOR") {
+      router.push(`/dashboard/payments`);
+      return;
+    }
+  };
+
   return (
     <div>
-      <Button onClick={() => router.push("/dashboard/payments")}>Regresar</Button>
+      <Button onClick={() => handleRedirect()}>Regresar</Button>
       {paymentDetail && (
         <Card className="w-full max-w-2xl mx-auto p-4 shadow-lg rounded-2xl bg-white">
           <CardHeader>
@@ -43,7 +52,7 @@ const PaymentDetail = () => {
                 Detalle de Pago
               </CardTitle>
               <div className="flex gap-2">
-                <Button>Imprimir factura</Button>
+                <Button onClick={() => printInvoice(id as string)}>Imprimir factura</Button>
                 {
                   paymentDetail.status === "Pendiente" && (
                     <PartialPaymentModal paymentId={id as string} refetch={refetchDetail} pending={Number(paymentDetail.pending)}/>
@@ -57,21 +66,21 @@ const PaymentDetail = () => {
               <div className="flex justify-between items-center">
                 <span className="text-lg font-medium">Monto total: </span>
                 <div className="flex gap-2">
-                  ${Number(paymentDetail.total).toFixed(2)}{" "}
+                  ${formatCurrency(paymentDetail.total)}{" "}
                   <Badge className="text-lg"></Badge>
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-lg font-medium">Abonado: </span>
                 <div className="flex gap-2">
-                  ${paymentDetail.payed ? Number(paymentDetail.payed).toFixed(2) : 0}{" "}
+                  ${paymentDetail.payed ? formatCurrency(paymentDetail.payed) : 0}{" "}
                   <BadgeDollarSign className="text-lg"></BadgeDollarSign>
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-lg font-medium">Pendiente por pagar: </span>
                 <div className="flex gap-2">
-                  ${Number(paymentDetail.pending).toFixed(2)}{" "}
+                  ${formatCurrency(paymentDetail.pending ? paymentDetail.pending : 0)}{" "}
                   <ClockAlertIcon className="text-lg"></ClockAlertIcon>
                 </div>
               </div>
@@ -222,10 +231,10 @@ const PaymentDetail = () => {
                               {detail?.quantity}
                             </td>
                             <td className="border border-gray-300 px-4 py-2">
-                              ${Number(detail?.product?.price).toFixed(2)}
+                              ${formatCurrency(detail?.product?.price)}
                             </td>
                             <td className="border border-gray-300 px-4 py-2">
-                              ${Number(detail?.price).toFixed(2)} {detail?.discount > 0 && `(-${detail?.discount}%)`}
+                              ${formatCurrency(detail?.price)} {detail?.discount > 0 && `(-${detail?.discount}%)`}
                             </td>
                           </tr>
                         )
@@ -258,7 +267,7 @@ const PaymentDetail = () => {
                             {format(new Date(abono.createdAt), "dd/MM/yyyy - hh:mm a")}
                           </td>
                           <td className="border border-gray-300 px-4 py-2">
-                            ${Number(abono?.amount).toFixed(2)}
+                            ${formatCurrency(abono.amount)}
                           </td>
                         </tr>
                       ))}

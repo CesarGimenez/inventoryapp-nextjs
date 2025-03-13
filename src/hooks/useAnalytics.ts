@@ -1,15 +1,22 @@
 import { getAnalyticsDashboard } from "@/app/dashboard/home/api";
-import { useCompanyStore } from "@/store";
+import { useAuthStore, useCompanyStore } from "@/store";
 import { useQuery } from "@tanstack/react-query";
 
-export const useAnalytics = () => {
+export const useAnalytics = (date: string) => {
   const { defaultCompany } = useCompanyStore((state) => state);
+  const type = useAuthStore((state) => state.user?.type);
   const companyId = defaultCompany?._id;
 
-  const { data, isFetching, isLoading } = useQuery({
+  const enableTypes = ["PROPIETARIO", "ADMINISTRADOR"];
+
+  const body = {
+    date,
+  }
+
+  const { data, isFetching, isLoading, refetch } = useQuery({
     queryKey: ["analytics", companyId],
-    queryFn: () => getAnalyticsDashboard(companyId),
-    enabled: !!companyId,
+    queryFn: () => getAnalyticsDashboard(companyId, body),
+    enabled: !!companyId && !!type && enableTypes.includes(type),
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     staleTime: 1000 * 60 * 60,
@@ -19,5 +26,6 @@ export const useAnalytics = () => {
     data,
     isLoading,
     isFetching,
+    refetch
   };
 };

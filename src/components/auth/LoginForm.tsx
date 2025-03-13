@@ -14,8 +14,12 @@ import { useToast } from "../ui/use-toast";
 import { useAuthStore, useCompanyStore } from "@/store";
 import { useRouter } from "next/navigation";
 
+const PATH_URL_ADMIN = "/dashboard/home";
+const PATH_URL_SALESMAN = "/dashboard/new-payment";
+
 const loginSchema = z.object({
-  email: z.string().email("Introduce un email válido"),
+  // email: z.string().email("Introduce un email válido"),
+  username: z.string().trim(),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
 
@@ -55,8 +59,12 @@ export function LoginForm() {
       } else {
         setCompany(data.user?.company)
       }
-      
-      router.push("/dashboard/home");
+      if(data.user?.type === 'VENDEDOR') {
+        router.push(PATH_URL_SALESMAN);
+      }
+      if(data.user?.type === 'PROPIETARIO' || data.user?.type === 'ADMINISTRADOR') {
+        router.push(PATH_URL_ADMIN);
+      }
     },
     onError: (error) => {
       toast({
@@ -85,14 +93,14 @@ export function LoginForm() {
           <div>
             <label className="block text-gray-700">Correo Electrónico</label>
             <Input
-              type="email"
-              placeholder="ejemplo@correo.com"
-              {...register("email")}
-              className={cn("mt-1 w-full", errors.email && "border-red-500")}
+              type="username"
+              placeholder="Nombre de usuario"
+              {...register("username")}
+              className={cn("mt-1 w-full", errors.username && "border-red-500")}
             />
-            {errors.email && (
+            {errors.username && (
               <p className="mt-1 text-sm text-red-500">
-                {errors.email.message}
+                {errors.username.message}
               </p>
             )}
           </div>

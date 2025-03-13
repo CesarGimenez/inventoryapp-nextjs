@@ -1,5 +1,7 @@
 'use client'
 
+const BASE_API = process.env.NEXT_PUBLIC_API_URL;
+
 import QueryApi from "../useQueryApi";
 
 export const getMyProducts = (id: string) => QueryApi({
@@ -26,3 +28,17 @@ export const updateProduct = (id: string, data: any) => QueryApi({
     data,
     id,
 })
+
+export const getProductsReport = (id: string) => {
+  fetch(`${BASE_API}/v1/basic-reports/products/${id}`)
+    .then((res) => res.blob())
+    .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const newWindow = window.open(url, "_blank");
+        newWindow?.focus();
+        newWindow?.print();
+      })
+    .catch((error) => {
+      console.error("Error al obtener el reporte de productos:", error);
+    });
+};

@@ -24,13 +24,6 @@ import {
 } from "@/components/ui/table";
 
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -42,7 +35,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Payment } from "@/data/payments.data";
 import { ProductModal } from "./modal";
 import { useCompanyStore } from "@/store";
 
@@ -89,80 +81,80 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder="Filtrar por ...(nombre, categoria, etc)"
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => {
-            setCurrentStatus("all");
-            table.getColumn("category")?.setFilterValue(undefined);
-            table.getColumn("name")?.setFilterValue(event.target.value);
-          }}
-          className="max-w-sm"
-        />
-
-        <Select
-          value={currentStatus}
-          onValueChange={(value) => {
-            if (value === "all") {
-              table.getColumn("is_active")?.setFilterValue(undefined);
-              table.getColumn("category")?.setFilterValue(undefined);
+      <div className="flex items-center justify-between py-4 flex-wrap gap-2">
+        <div className="flex gap-2 flex-wrap w-[70%]">
+          <Input
+            placeholder="Filtrar por ...(nombre, categoria, etc)"
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) => {
               setCurrentStatus("all");
-              return;
-            }
-            
-            const status = value === "active" ? true : false;
-            setCurrentStatus(value);
-            table.getColumn("category")?.setFilterValue(undefined);
-            table.getColumn("is_active")?.setFilterValue(status);
-          }}
-        >
-          <SelectTrigger className="w-[180px] ml-2">
-            <SelectValue placeholder="Estatus - Todos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Estatus</SelectLabel>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="active">Activo</SelectItem>
-              <SelectItem value="inactive">Inactivo</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={currentCategory}
-          onValueChange={(value) => {
-            if (value === "all") {
               table.getColumn("category")?.setFilterValue(undefined);
-              setCurrentCategory("all");
-              return;
-            }
+              table.getColumn("name")?.setFilterValue(event.target.value);
+            }}
+            className="max-w-sm"
+          />
 
-            setCurrentCategory(value);
-            table.getColumn("category")?.setFilterValue(value);
-          }}
-        >
-          <SelectTrigger className="w-[180px] ml-2">
-            <SelectValue placeholder="Estatus - Todos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Todas</SelectItem>
-              {
-                categories.map((category) => {
+          <Select
+            value={currentStatus}
+            onValueChange={(value) => {
+              if (value === "all") {
+                table.getColumn("is_active")?.setFilterValue(undefined);
+                table.getColumn("category")?.setFilterValue(undefined);
+                setCurrentStatus("all");
+                return;
+              }
+
+              const status = value === "active" ? true : false;
+              setCurrentStatus(value);
+              table.getColumn("category")?.setFilterValue(undefined);
+              table.getColumn("is_active")?.setFilterValue(status);
+            }}
+          >
+            <SelectTrigger className="w-[180px] ml-2">
+              <SelectValue placeholder="Estatus - Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Estatus</SelectLabel>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="active">Activo</SelectItem>
+                <SelectItem value="inactive">Inactivo</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={currentCategory}
+            onValueChange={(value) => {
+              if (value === "all") {
+                table.getColumn("category")?.setFilterValue(undefined);
+                setCurrentCategory("all");
+                return;
+              }
+
+              setCurrentCategory(value);
+              table.getColumn("category")?.setFilterValue(value);
+            }}
+          >
+            <SelectTrigger className="w-[180px] ml-2">
+              <SelectValue placeholder="Estatus - Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Todas</SelectItem>
+                {categories.map((category) => {
                   return (
                     <SelectItem key={category._id} value={category.name}>
                       {category.name}
                     </SelectItem>
                   );
-                })
-              }
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+                })}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
 
-        {isDeleteVisible && (
+        {/* {isDeleteVisible && (
           <Button
             className="ml-2"
             variant="destructive"
@@ -178,35 +170,7 @@ export function DataTable<TData, TValue>({
           >
             Delete
           </Button>
-        )}
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columnas
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .filter((column) => column.id !== "actions")
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        )} */}
 
         {/* <Button className="ml-2">
           <Plus className="mr-2 h-4 w-4" /> Agregar

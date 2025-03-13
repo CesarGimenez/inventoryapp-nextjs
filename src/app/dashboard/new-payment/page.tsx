@@ -17,7 +17,8 @@ import { getMyProducts } from "@/api/products/products.api";
 import { useToast } from "@/components/ui/use-toast";
 import { createPayment } from "./api";
 import { useRouter } from "next/navigation";
-import { useClients, useProducts } from "@/hooks";
+import { useCategories, useClients, useProducts } from "@/hooks";
+import { usePayment } from "../payments/usePayment";
 
 interface Client {
   _id: string;
@@ -34,6 +35,7 @@ interface Product {
   price: number;
   quantity: number;
   is_active: boolean;
+  category?: string;
 }
 interface PaymentDetail {
   name: string;
@@ -56,9 +58,10 @@ const paymentStatuses = [
 ]
 
 export default function FormularioPedido() {
-  const companyId = useCompanyStore((state) => state.defaultCompany?._id);
   const userId = useAuthStore((state) => state.user?._id);
+  const userType = useAuthStore((state) => state.user?.type);
   const availableProducts = useCompanyStore((state) => state.availableProducts);
+  const companyId = useCompanyStore((state) => state?.defaultCompany?._id);
 
   const router = useRouter();
 
@@ -69,6 +72,8 @@ export default function FormularioPedido() {
   const [cantidad, setCantidad] = useState<number | string>()
   const [discount, setDiscount] = useState<number | string>(0)
   const [subTotal, setSubTotal] = useState<number>(0)
+
+  const [categorySelected, setCategorySelected] = useState<string>("")
 
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null)
 
@@ -81,8 +86,10 @@ export default function FormularioPedido() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>()
 
   const { data: clients } = useClients();
-
   const { data: products } = useProducts();
+  const { data: categories } = useCategories();
+
+  const { refetch } = usePayment();
 
   useEffect(() => {
     setFilteredClients(clients)
@@ -90,6 +97,17 @@ export default function FormularioPedido() {
   }, [clients, availableProducts])
 
   const { toast } = useToast()
+
+  useEffect(() => {
+    if(categorySelected === "TODAS") {
+      setFilteredProducts(availableProducts)
+      return;
+    }
+    if (categorySelected !== "") {
+      setFilteredProducts(availableProducts?.filter((p: Product) => p.category === categorySelected))
+      return;
+    }
+  }, [availableProducts, categorySelected])
 
   useEffect(() => {
     if (queryClient) {
@@ -223,7 +241,6 @@ export default function FormularioPedido() {
       return await createPayment(data);
     },
     onSuccess: (data) => {
-      console.log(data)
       toast({
         variant: "success",
         title: "Creado",
@@ -235,9 +252,10 @@ export default function FormularioPedido() {
       setMetodoSeleccionado('')
       setProductoSeleccionado('')
       setProductosAgregados([])
+      refetch();
       setTimeout(() => {
         router.push(`/dashboard/payments/payment-detail?id=${data.id}`);
-      }, 3000)
+      }, 1500)
     },
     onError: () => {
       toast({
@@ -280,13 +298,16 @@ export default function FormularioPedido() {
     return;
   }
 
+  const showBtnSales = ["PROPIETARIO", "ADMINISTRADOR"].includes(userType as string);
+
   return (
     <div className="mx-auto p-6 space-y-6">
       <Button
         variant="outline"
         onClick={() => router.push("/dashboard/payments")}
+        className={showBtnSales ? "" : "hidden"}
       >
-        Ir ventas
+        Ir a ventas
       </Button>
       <h1 className="text-2xl font-bold">Formulario de Pedido</h1>
 
@@ -319,6 +340,34 @@ export default function FormularioPedido() {
                 ) : (
                   <SelectItem value="not-found" disabled>
                     No hay clientes, te recomendamos agregar uno nuevo.
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="producto">Seleccionar Categoria</Label>
+            <Select
+              value={categorySelected}
+              onValueChange={setCategorySelected}
+            >
+              <SelectTrigger id="producto">
+                <SelectValue placeholder="Seleccione una categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="TODAS" autoFocus>
+                  Todas
+                </SelectItem>
+                {categories && categories?.length > 0 ? (
+                  categories?.map((category: any) => (
+                    <SelectItem key={category._id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="not-found" disabled>
+                    No hay categorias, te recomendamos agregar una nuevo.
                   </SelectItem>
                 )}
               </SelectContent>

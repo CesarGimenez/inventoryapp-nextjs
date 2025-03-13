@@ -84,20 +84,20 @@ export const getPaymentDetails = (id: string): Promise<Payment> => QueryApi({
     id,
 })
 
-export const downloadInvoice = () => {
-    fetch(`${BASE_API}/v1/basic-reports`)
+export const downloadInvoice = (id: string, client?: string) => {
+    fetch(`${BASE_API}/v1/basic-reports/order/${id}`)
       .then((res) => res.blob())
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `invoice-${Date.now()}.pdf`;
+        a.download = `fac-${client?.replace(/\s+/g, '')?.toLowerCase()}-${id.slice(0, 5)}.pdf`;
         a.click();
       });
   }
   
-export const printInvoice = () => {
-    fetch(`${BASE_API}/v1/basic-reports`)
+export const printInvoice = (id: string) => {
+    fetch(`${BASE_API}/v1/basic-reports/order/${id}`)
       .then((res) => res.blob())
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);

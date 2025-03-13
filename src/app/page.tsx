@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useAuthStore } from "@/store";
 import { redirect, useRouter } from "next/navigation";
@@ -11,17 +11,32 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    const enabledDashboard = ["PROPIETARIO", "ADMINISTRADOR"];
+    const onlySalesman = ["VENDEDOR"];
+
     checkAuth();
-    if(!authState.loading && !authState.user && !authState.token) {
+    if (!authState.loading && !authState.user && !authState.token) {
       redirect("/login");
     }
     if (authState.user && authState.token) {
-      if(lastPageVisited !== "") {
+      if (lastPageVisited !== "") {
         router.push(lastPageVisited);
       }
-      router.push("/dashboard/home");
+      if (enabledDashboard.includes(authState.user.type)) {
+        router.push("/dashboard/home");
+      }
+      // if (onlySalesman.includes(authState.user.type)) {
+      //   router.push("/dashboard/new-payment");
+      // }
     }
-  }, [checkAuth, authState.user, authState.token, router, lastPageVisited, authState.loading]);
+  }, [
+    checkAuth,
+    authState.user,
+    authState.token,
+    router,
+    lastPageVisited,
+    authState.loading,
+  ]);
 
   return null;
 }

@@ -44,7 +44,8 @@ const FormSchema = z.object({
   quantity: z.number().default(0),
   category: z.string({
     required_error: "Por favor, selecciona una categoria.",
-  })
+  }),
+  sku: z.string().optional(),
 });
 
 type createProductType = z.infer<typeof FormSchema>;
@@ -113,14 +114,14 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nombre</FormLabel>
+                  <FormLabel>Nombre*</FormLabel>
                   <Input placeholder="Nombre del producto" {...field} />
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="description"
               render={({ field: { onChange, value, ...field } }) => (
@@ -135,6 +136,23 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
                   <FormMessage />
                 </FormItem>
               )}
+            /> */}
+
+            <FormField
+              control={form.control}
+              name="sku"
+              render={({ field: { onChange, value, ...field } }) => (
+                <FormItem>
+                  <FormLabel>SKU (Opcional)</FormLabel>
+                  <Input
+                    placeholder="SKU del producto"
+                    type="text"
+                    onChange={(e) => onChange(e.target.value)}
+                    {...field}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormField
@@ -142,7 +160,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
               name="price"
               render={({ field: { onChange, ...field } }) => (
                 <FormItem>
-                  <FormLabel>Precio ($)</FormLabel>
+                  <FormLabel>Precio ($)*</FormLabel>
                   <Input
                     placeholder="Precio del producto"
                     type="number"
@@ -180,7 +198,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
               name="quantity"
               render={({ field: { onChange, ...field } }) => (
                 <FormItem>
-                  <FormLabel>Cantidad</FormLabel>
+                  <FormLabel>Cantidad*</FormLabel>
                   <Input
                     placeholder="Cantidad del producto"
                     type="number"
@@ -198,7 +216,7 @@ export const ProductModal = ({ refetch = () => {} }: Props) => {
               name="category"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Categoria</FormLabel>
+                  <FormLabel>Categoria*</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}

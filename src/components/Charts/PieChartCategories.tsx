@@ -13,7 +13,7 @@ const COLORS = Array.from({ length: 20 }, (_, i) => {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 });
 
-const ProductSalesPieChart = ({ data }: Props) => {
+const PieChartCategories = ({ data }: Props) => {
 
   const dataPrepared = data && data.map((item) => {
     return {
@@ -39,6 +39,7 @@ const ProductSalesPieChart = ({ data }: Props) => {
             data={dataPrepared}
             cx="50%"
             cy="50%"
+            innerRadius={60}
             outerRadius={100}
             fill="#8884d8"
             dataKey="value"
@@ -55,4 +56,4 @@ const ProductSalesPieChart = ({ data }: Props) => {
   );
 };
 
-export default ProductSalesPieChart;
+export default PieChartCategories;
